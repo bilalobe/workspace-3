@@ -1,0 +1,38 @@
+# friendly-octo-happiness
+initgit
+add
+README.mdgit
+commit
+-m
+first commit
+git
+branch
+-M
+maingit
+remote
+add
+origin
+https://github.com/bilalobe/friendly-octo-happiness.gitgit
+push
+-u
+origin
+main
+# friendly-octo-happiness
+initgit
+add
+README.mdgit
+commit
+-m
+first commit
+git
+branch
+-M
+maingit
+remote
+add
+origin
+https://github.com/bilalobe/friendly-octo-happiness.gitgit
+push
+-u
+origin
+main
