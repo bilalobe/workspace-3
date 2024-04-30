@@ -83,7 +83,7 @@ void Client::crediterCompte(int numeroCompte, double montant)
     if (it != comptes.end()) {
         it->Deposer(montant);
     } else {
-        std::cout << "Account not found.\n";
+        throw OperationNonAboutieError::InvalidAmountError("Amount non valid");
     }
 }
 
@@ -96,7 +96,7 @@ void Client::debiterCompte(int numeroCompte, double montant) {
         double solde = it->getSolde(); 
         if (solde >= montant) {
             it->Retirer(montant);
-            // ... (potentially log the transaction) ...
+
         } else {
             throw OperationNonAboutieError(solde, montant);
         }
