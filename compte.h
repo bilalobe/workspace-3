@@ -6,6 +6,7 @@
 
 class Compte {
 public:
+    Compte(int numero);
     Compte(int numeroCompte, double solde, const std::string& type); 
 
     void Deposer(double montant);

@@ -7,6 +7,7 @@
 Compte::Compte(int numeroCompte, double solde, const std::string& type) :
     numeroCompte(numeroCompte), solde(solde), type(type) {} 
 
+Compte::Compte(int numero) : numeroCompte(numero), solde(0.0) {}
 
 // Getters
 int Compte::getNumeroCompte() const { return numeroCompte; }

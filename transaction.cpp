@@ -3,6 +3,8 @@
 #include "compte.h"
 #include "client.h"
 #include "logutils.h"
+#include "g_error.h"
+#include "pret.h"
 
 #include <fstream>
 #include <sstream>
