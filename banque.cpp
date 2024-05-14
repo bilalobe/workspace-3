@@ -121,3 +121,36 @@ void GestionnaireBanque::afficherTransactions() const {
 
     logFile.close();
 }
+
+void GestionnaireBanque::demanderPret() {
+    // 1. Get loan details (amount, rate, duration, client ID) from the user.
+    // 2. Create a new Pret object with the provided details.
+    // 3. Add the new Pret object to the 'prets' vector in GestionnaireBanque.
+} 
+
+
+
+/* void GestionnaireBanque::sauvegarderClients(const std::string& filename) {
+    std::ofstream outputFile(filename);
+    json j = json::array(); // Create a JSON array
+    for (const auto& client : clients) {
+        j.push_back({
+            {"id", client.getId()},
+            {"nom", client.getNom()}
+        });
+    }
+    outputFile << j << std::endl;
+    outputFile.close();
+}
+
+void GestionnaireBanque::chargerClients(const std::string& filename) {
+    std::ifstream inputFile(filename); 
+    if (inputFile.is_open()) {
+        json j;
+        inputFile >> j;
+        for (const auto& item : j) {
+            clients.push_back(Client(item["id"], item["nom"]));
+        }
+        inputFile.close();
+    }
+} */

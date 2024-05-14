@@ -9,7 +9,9 @@
 #include "pret.h"
 #include "transaction.h"
 #include "banque.h"
+
 using Paiement = Pret::Paiement; 
+
 class Pret {
 private:
     double montant;
@@ -89,8 +91,6 @@ public:
     void Pret::setCompteAssociePtr(std::shared_ptr<Compte> compteAssociePtr) {
 
     }
-    
-    
 
     void Pret::setMontant(double montant)
     {

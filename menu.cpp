@@ -172,3 +172,42 @@ void afficherMenuTransaction() {
         }
     } while (choix != 4); 
 }
+// menu.cpp 
+// ... (Other menu functions) ...
+
+void afficherMenuPret() {
+    int choix;
+    do {
+        std::cout << "\n----- Menu Pret -----" << std::endl;
+        std::cout << "1. Demander un pret" << std::endl;
+        std::cout << "2. Afficher les prets" << std::endl; 
+        std::cout << "3. Effectuer un remboursement" << std::endl; 
+        // ... Add more options (e.g., modify loan) ...
+        std::cout << "4. Retour au menu principal" << std::endl;
+        std::cout << "Entrez votre choix: ";
+        std::cin >> choix;
+
+        switch (choix) {
+            case 1: {
+                // Call a function in GestionnaireBanque to handle loan requests
+                // (e.g., banque.demanderPret(...))
+                break; 
+            }
+            case 2:
+                // Call a function to display loans 
+                // (e.g., banque.afficherPrets(...))
+                break;
+            case 3: {
+                // Call a function to record a payment
+                // (e.g., banque.enregistrerPaiement(...))
+                break; 
+            }
+            // ... Handle other options ...
+            case 4: 
+                std::cout << "Retour au menu principal." << std::endl;
+                break;
+            default: 
+                std::cout << "Choix invalide. Veuillez reessayer." << std::endl;
+        }
+    } while (choix != 4); 
+}

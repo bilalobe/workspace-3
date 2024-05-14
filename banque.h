@@ -6,9 +6,11 @@
 #include <vector>   
 
 #include "compte.h"
+#include "pret.h"
 #include "client.h" // Include for the Client class
 #include "compte.h"
 #include "transaction.h"
+
 class GestionnaireBanque {
 public:
     std::vector
@@ -36,6 +38,7 @@ public:
     void retirer(int compteId, double montant); 
     void afficherTransactions() const; 
 private:
+    Pret pret;
     int dernierIdClient = 1; // Add for generating Client IDs
     int dernierIdCompte = 1;  // Add for generating Compte IDs 
 };
