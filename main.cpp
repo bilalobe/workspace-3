@@ -1,4 +1,4 @@
-
+#include <iostream>
 #include "client.cpp"
 #include "compte.cpp"
 #include "transaction.cpp"

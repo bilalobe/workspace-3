@@ -1,7 +1,8 @@
 #include "compte.h"
 #include "g_error.h" 
 #include "logutils.h" 
-#include <iostream>
+
+using namespace std;
 
 // Constructor
 Compte::Compte(int numeroCompte, double solde, const std::string& type) :

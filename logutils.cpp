@@ -4,6 +4,8 @@
 #include <fstream>
 #include "transaction.h"
 
+using namespace std;
+
 std::string getCurrentDateTime() {
     // Get current time point
     const auto now = std::chrono::system_clock::now();

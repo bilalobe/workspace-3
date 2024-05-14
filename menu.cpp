@@ -6,8 +6,7 @@
 #include <iostream>
 #include <vector>
 
- using namespace std;
-extern GestionnaireBanque banque;
+using namespace std;
 
 // Function Declarations (moved from menu.h)
 void afficherMenuPrincipal();

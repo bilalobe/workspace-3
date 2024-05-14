@@ -1,5 +1,7 @@
 #include "client.h"
 
+using namespace std;
+
 Client::Client(int id, const std::string& nom, const std::string& adresse) 
     : id(id), nom(nom), adresse(adresse) {}
 
