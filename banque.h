@@ -7,7 +7,7 @@
 #include "transaction.h"
 class GestionnaireBanque {
 public:
-
+    std::shared_ptr
     bool compteExists(int numeroCompte) {
         for (const auto& client : clients) {
             if (client.numeroCompteExists(numeroCompte)) {

@@ -1,7 +1,7 @@
 #include "banque.h"
 using namespace std;
 
-
+std::shared_ptr
 
 void GestionnaireBanque::AjouterNouveauClient(const std::string& nom, const std::string& adresse) {
     // Create a new client
