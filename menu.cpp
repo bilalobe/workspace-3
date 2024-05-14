@@ -1,4 +1,3 @@
-#include "menu.h"
 #include "client.h"
 #include "banque.h"
 #include "compte.h"
@@ -7,6 +6,7 @@
 #include <iostream>
 #include <vector>
 
+ using namespace std;
 extern GestionnaireBanque banque;
 
 // Function Declarations (moved from menu.h)
@@ -322,7 +322,7 @@ void afficherSousMenuTransactions() {
             }
             case 3: {
                 int clientId;
-                std::cout << "Entrez l'ID du client: ";
+                std::cout << "Entrez " 
                 std::cin >> clientId;
                 banque.afficherTransactionsClient(clientId); // Implement in GestionnaireBanque
                 break;
