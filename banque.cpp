@@ -1,7 +1,9 @@
 #include "banque.h"
-using namespace std;
+#include "client.h"
+#include "compte.h"
+#include <iostream> 
 
-std::shared_ptr
+using namespace std;
 
 
 int GestionnaireBanque::genererNumeroCompteUnique() {
