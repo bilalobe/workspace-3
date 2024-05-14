@@ -81,15 +81,13 @@ public:
     std::chrono::system_clock::time_point getDerniereDatePaiement() const {
         return derniereDatePaiement;
     }
+    
     const std::vector<Paiement> &Pret::getPaiements() const
     {
         return paiements;
     }
 
-    std::shared_ptr<Compte> Pret::getCompteAssociePtr() const
-    {
-        return std::shared_ptr<Compte>();
-    }
+
 
     void Pret::setCompteAssociePtr(std::shared_ptr<Compte> compteAssociePtr) {
 

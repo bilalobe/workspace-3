@@ -35,10 +35,16 @@ bool GestionnaireBanque::compteExists(int numeroCompte) {
 }
 
 
+// In banque.cpp
 void GestionnaireBanque::nouveauClient(const std::string& nom) {
-    Client client(dernierIdClient++, nom); 
-    clients.push_back(client); 
-    std::cout << "Nouveau client ajouté avec succès ! ID du client : " << client.getId() << std::endl;
+    std::string clientName;
+    std::cout << "Entrez le nom du client: ";
+    std::cin.ignore(); // Ignore any leftover newline characters
+    std::getline(std::cin, clientName); // Read the entire line (to allow for spaces in the name)
+
+    Client client(dernierIdClient++, clientName);
+    clients.push_back(client);
+    std::cout << "Nouveau client ajouté avec succès! ID du client: " << client.getId() << std::endl;
 }
 
 void GestionnaireBanque::modifierClient(int clientId) {

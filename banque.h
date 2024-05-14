@@ -39,7 +39,7 @@ public:
     // New methods for Transaction management
     void deposer(int compteId, double montant); 
     void retirer(int compteId, double montant); 
-    void afficherTransactions() const; 
+    
 private:
     Pret pret;
     int dernierIdClient = 1; // Add for generating Client IDs

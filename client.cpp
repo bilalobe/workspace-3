@@ -16,11 +16,3 @@ std::string Client::getAdresse() const {
     return adresse; 
 }
 
-// Setters
-void Client::setNom(const std::string& nom) {
-    this->nom = nom;
-}
-
-void Client::setAdresse(const std::string& adresse) {
-    this->adresse = adresse; 
-}

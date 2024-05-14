@@ -18,9 +18,6 @@ public:
     std::string getNom() const;
     std::string getAdresse() const; 
 
-    // Setters
-    void setNom(const std::string& nom);
-    void setAdresse(const std::string& adresse); 
 };
 
 #endif
