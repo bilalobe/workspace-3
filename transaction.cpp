@@ -81,7 +81,7 @@ std::vector<Transaction> readTransactionsFromFile() {
         }
         file.close();
     } else {
-        throw 
+        throw ;
     }
     return transactions;
 }
