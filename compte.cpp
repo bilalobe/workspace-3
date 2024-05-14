@@ -33,10 +33,11 @@ void Compte::Deposer(double montant) {
 
 // Withdraw method
 void Compte::Retirer(double montant) {
-    if (solde >= montant) {
+    if (montant > 0 && montant <= solde) {
         solde -= montant;
+        std::cout << "Retrait de " << montant << " reussi. Nouveau solde: " << solde << std::endl;
     } else {
-        throw OperationNonAboutieError(solde, montant); // Pass balance and amount
+        std::cout << "Erreur: Le montant du retrait doit etre positif et inferieur ou egal au solde." << std::endl;
     }
 }
 
