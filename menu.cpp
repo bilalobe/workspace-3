@@ -1,6 +1,59 @@
 #include "menu.h"
+#include "client.h"
+#include "banque.h"
+#include "compte.h"
+#include "pret.h"
+
+#include <iostream>
+#include <vector>
 
 extern GestionnaireBanque banque;
+
+// Function Declarations (moved from menu.h)
+void afficherMenuPrincipal();
+void afficherMenuClient();
+void afficherMenuCompte(); 
+void afficherMenuTransaction();
+void afficherSousMenuTransactions();
+void demanderPret();
+void afficherMenuPret(); 
+void afficherSousMenuRechercherClient();
+
+// Global variable to store the currently logged-in client ID (initialize to -1 for no user)
+int clientIdSession = -1; 
+
+int main() {
+    int choix;
+
+    do {
+        std::cout << "\n----- Menu Principal -----" << std::endl;
+        std::cout << "1. Se Connecter" << std::endl;
+        std::cout << "2. Quitter" << std::endl;
+        std::cout << "Entrez votre choix: ";
+        std::cin >> choix;
+
+        switch (choix) {
+            case 1: {
+                int clientId;
+                std::cout << "Entrez votre ID client: ";
+                std::cin >> clientId;
+                // Implement client authentication here (e.g., check against a list of clients)
+                // For now, we'll just set the session ID
+                clientIdSession = clientId;
+                std::cout << "Connexion réussie!" << std::endl;
+                afficherMenuPrincipal(); // Display the main menu after login
+                break;
+            }
+            case 2:
+                std::cout << "Au revoir!" << std::endl;
+                break;
+            default:
+                std::cout << "Choix invalide. Veuillez réessayer." << std::endl;
+        }
+    } while (choix != 2);
+
+    return 0;
+}
 
 void afficherMenuPrincipal() {
     int choix;
@@ -9,7 +62,7 @@ void afficherMenuPrincipal() {
         std::cout << "1. Client" << std::endl;
         std::cout << "2. Compte" << std::endl;
         std::cout << "3. Transaction" << std::endl;
-        std::cout << "4. Quitter" << std::endl;
+        std::cout << "4. Déconnexion" << std::endl; // Add a logout option
         std::cout << "Entrez votre choix: ";
         std::cin >> choix;
 
@@ -23,13 +76,14 @@ void afficherMenuPrincipal() {
             case 3: 
                 afficherMenuTransaction(); 
                 break;
-            case 4: 
-                std::cout << "Au revoir!" << std::endl;
-                break;
+            case 4:
+                clientIdSession = -1; // Clear the session ID on logout
+                std::cout << "Déconnexion réussie!" << std::endl;
+                break; 
             default: 
                 std::cout << "Choix invalide. Veuillez reessayer." << std::endl;
         }
-    } while (choix != 4); 
+    } while (choix != 4);
 }
 
 void afficherMenuClient() {
@@ -41,7 +95,8 @@ void afficherMenuClient() {
         std::cout << "3. Supprimer Client" << std::endl;
         std::cout << "4. Afficher Clients" << std::endl;
         std::cout << "5. Rechercher Client" << std::endl;
-        std::cout << "6. Retour au menu principal" << std::endl;
+        std::cout << "6. Prets" << std::endl; // Moved "Prets" to be a submenu of Client
+        std::cout << "7. Retour au menu principal" << std::endl; // Updated choice number
         std::cout << "Entrez votre choix: ";
         std::cin >> choix;
 
@@ -64,7 +119,6 @@ void afficherMenuClient() {
                 break;
             }
             case 3: {
-                // Call the function to delete a client (you'll need to implement this)
                 int clientId;
                 std::cout << "Entrez l'ID du client à supprimer: ";
                 std::cin >> clientId;
@@ -72,25 +126,60 @@ void afficherMenuClient() {
                 break;
             }
             case 4: 
-                // Call the function to display all clients (you'll need to implement this)
-                banque.afficherClients(); // Placeholder
+                banque.afficherClients(); 
                 break;
-            case 5: {
-                // Call the function to search for a client (you'll need to implement this)
-                std::string searchTerm;
-                std::cout << "Entrez le nom du client à rechercher: ";
-                std::cin.ignore();
-                std::getline(std::cin, searchTerm);
-                banque.rechercherClient(searchTerm); // Placeholder
+ 
+            case 5: 
+                afficherSousMenuRechercherClient(); // Call the new sub-submenu
                 break;
-            }
+
             case 6: 
+                afficherMenuPret();
+                break;
+
+            case 7: // Updated choice number
                 std::cout << "Retour au menu principal." << std::endl;
                 break;
             default: 
                 std::cout << "Choix invalide. Veuillez reessayer." << std::endl;
         }
-    } while (choix != 6); 
+    } while (choix != 7); // Updated choice number 
+}
+
+
+void afficherSousMenuRechercherClient() {
+    int choix;
+    do {
+        std::cout << "\n----- Sous-Menu Rechercher Client -----" << std::endl;
+        std::cout << "1. Rechercher par nom" << std::endl;
+        std::cout << "2. Rechercher par ID" << std::endl;
+        std::cout << "3. Retour au Menu Client" << std::endl;
+        std::cout << "Entrez votre choix: ";
+        std::cin >> choix;
+
+        switch (choix) {
+            case 1: {
+                std::string nomClient;
+                std::cout << "Entrez le nom du client à rechercher: ";
+                std::cin.ignore();
+                std::getline(std::cin, nomClient);
+                banque.rechercherClientParNom(nomClient); // Implement in GestionnaireBanque
+                break;
+            }
+            case 2: {
+                int clientId;
+                std::cout << "Entrez l'ID du client à rechercher: ";
+                std::cin >> clientId;
+                banque.rechercherClientParId(clientId); // Implement in GestionnaireBanque
+                break;
+            }
+            case 3: 
+                std::cout << "Retour au Menu Client." << std::endl;
+                break;
+            default: 
+                std::cout << "Choix invalide. Veuillez reessayer." << std::endl;
+        } 
+    } while (choix != 3);
 }
 
 void afficherMenuCompte() {
@@ -108,15 +197,53 @@ void afficherMenuCompte() {
 
         switch (choix) {
             case 1: {
-                // Call the function to create a new account (you'll need to implement this)
-                // Assuming you have a function like banque.creerCompte(clientId); 
+                // Call the function to create a new account 
                 int clientId;
                 std::cout << "Entrez l'ID du client pour le nouveau compte: ";
                 std::cin >> clientId;
                 banque.creerCompte(clientId); 
                 break;
             }
-            // Implement cases 2-5 similarly, calling functions from GestionnaireBanque
+            case 2: { // Modifier Compte
+                int compteId;
+                std::cout << "Entrez l'ID du compte à modifier : ";
+                std::cin >> compteId;
+
+                // Check if the account exists
+                if (banque.compteExists(compteId)) { 
+                    banque.modifierCompte(compteId);  
+                } else {
+                    std::cout << "Erreur: Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+                    // Optionally, you can allow the user to re-enter the account ID here:
+                    std::cout << "Voulez-vous réessayer ? (o/n): ";
+                    char reponse;
+                    std::cin >> reponse;
+                    if (reponse != 'o' && reponse != 'O') {
+                        break; // Exit the 'Modifier Compte' case
+                    } 
+                }
+                break;
+            }
+            case 3: {
+                // Call the function to delete an account
+                int compteId;
+                std::cout << "Entrez l'ID du compte à supprimer : ";
+                std::cin >> compteId;
+                banque.supprimerCompte(compteId); 
+                break;
+            }
+            case 4: 
+                // Call the function to display all accounts
+                banque.afficherComptes(); 
+                break;
+            case 5: {
+                // Call the function to search for an account
+                int compteId;
+                std::cout << "Entrez l'ID du compte à rechercher : ";
+                std::cin >> compteId;
+                banque.rechercherCompte(compteId); 
+                break;
+            }
             case 6:
                 std::cout << "Retour au menu principal." << std::endl;
                 break;
@@ -139,7 +266,6 @@ void afficherMenuTransaction() {
 
         switch (choix) {
             case 1: {
-                // Implement deposit logic here
                 int compteId;
                 double montant;
                 std::cout << "Entrez l'ID du compte: ";
@@ -161,9 +287,8 @@ void afficherMenuTransaction() {
                 break;
             }
             case 3: 
-                // Call the function to display transactions (you'll need to implement this)
-                banque.afficherTransactions(); // Placeholder
-                break;
+                afficherSousMenuTransactions();  // Call the sub-submenu function
+                break; 
             case 4: 
                 std::cout << "Retour au menu principal." << std::endl;
                 break;
@@ -172,39 +297,81 @@ void afficherMenuTransaction() {
         }
     } while (choix != 4); 
 }
-// menu.cpp 
-// ... (Other menu functions) ...
 
+void afficherSousMenuTransactions() {
+    int choix;
+    do {
+        std::cout << "\n----- Sous-Menu Transactions -----" << std::endl;
+        std::cout << "1. Afficher toutes les transactions" << std::endl; 
+        std::cout << "2. Afficher les transactions d'un compte" << std::endl;
+        std::cout << "3. Afficher les transactions d'un client" << std::endl;
+        std::cout << "4. Retour au menu Transactions" << std::endl;
+        std::cout << "Entrez votre choix: ";
+        std::cin >> choix;
+
+        switch (choix) {
+            case 1:
+                banque.afficherTransactions();
+                break;
+            case 2: {
+                int compteId;
+                std::cout << "Entrez l'ID du compte: ";
+                std::cin >> compteId;
+                banque.afficherTransactionsCompte(compteId); // Implement in GestionnaireBanque
+                break;
+            }
+            case 3: {
+                int clientId;
+                std::cout << "Entrez l'ID du client: ";
+                std::cin >> clientId;
+                banque.afficherTransactionsClient(clientId); // Implement in GestionnaireBanque
+                break;
+            }
+            case 4:
+                std::cout << "Retour au menu Transactions." << std::endl;
+                break;
+                
+            default:
+                std::cout << "Choix invalide. Veuillez reessayer." << std::endl;
+        }
+    } while (choix != 4);
+}
 void afficherMenuPret() {
     int choix;
     do {
         std::cout << "\n----- Menu Pret -----" << std::endl;
         std::cout << "1. Demander un pret" << std::endl;
-        std::cout << "2. Afficher les prets" << std::endl; 
+        std::cout << "2. Afficher mes prets" << std::endl; 
         std::cout << "3. Effectuer un remboursement" << std::endl; 
-        // ... Add more options (e.g., modify loan) ...
-        std::cout << "4. Retour au menu principal" << std::endl;
+        std::cout << "4. Retour au Menu Client" << std::endl; // Changed to return to Client menu
         std::cout << "Entrez votre choix: ";
         std::cin >> choix;
 
         switch (choix) {
             case 1: {
-                // Call a function in GestionnaireBanque to handle loan requests
-                // (e.g., banque.demanderPret(...))
+                demanderPret(); 
                 break; 
             }
             case 2:
-                // Call a function to display loans 
-                // (e.g., banque.afficherPrets(...))
+                banque.afficherPrets(clientIdSession); // Pass client ID for access control
                 break;
             case 3: {
-                // Call a function to record a payment
-                // (e.g., banque.enregistrerPaiement(...))
+                int pretId;
+                double montant;
+                std::string datePaiementStr;
+
+                std::cout << "Entrez l'ID du prêt : ";
+                std::cin >> pretId;
+                std::cout << "Entrez le montant du remboursement : ";
+                std::cin >> montant;
+                std::cout << "Entrez la date du remboursement (YYYY-MM-DD) : ";
+                std::cin >> datePaiementStr;
+
+                banque.enregistrerRemboursement(pretId, montant, datePaiementStr, clientIdSession);
                 break; 
             }
-            // ... Handle other options ...
-            case 4: 
-                std::cout << "Retour au menu principal." << std::endl;
+            case 4:
+                std::cout << "Retour au Menu Client." << std::endl; // Return to Client menu
                 break;
             default: 
                 std::cout << "Choix invalide. Veuillez reessayer." << std::endl;

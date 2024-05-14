@@ -22,6 +22,9 @@ private:
     std::vector<Paiement> paiements;
     std::chrono::system_clock::time_point derniereDatePaiement; 
 
+    static int nextLoanId; 
+    std::vector
+    
 bool operator==(const Pret& other) const {
     return montant == other.montant;
 }
@@ -115,7 +118,11 @@ public:
         dateRemboursement = stringToTimePoint(dateRemboursementStr);
     }
 
-
+    void Pret::ajouterPret(const Pret& pret) {
+        pret.setId(nextLoanId++); 
+        prets.push_back(pret); 
+    }
+    
     double calculerInteretSimpleDepuisDernierPaiement() const {
         if (derniereDatePaiement == stringToTimePoint("1970-01-01")) {
             return 0.0; // No payments made yet

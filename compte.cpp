@@ -71,3 +71,42 @@ void Compte::setType(std::string type)
     }
     this->type = type;
 }
+
+// In banque.cpp
+void GestionnaireBanque::modifierCompte(int compteId) {
+    for (auto& compte : comptes) {
+        if (compte->getNumeroCompte() == compteId) {
+            // Implement logic to modify account details
+            // (e.g., change account type, update balance [with proper checks])
+            std::cout << "Compte modifié avec succès!" << std::endl;
+            return;
+        }
+    }
+    std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+}
+
+// In banque.cpp
+void GestionnaireBanque::supprimerCompte(int compteId) {
+    auto it = std::remove_if(comptes.begin(), comptes.end(),
+                            [compteId](const auto& compte) { return compte->getNumeroCompte() == compteId; });
+
+    if (it != comptes.end()) {
+        comptes.erase(it, comptes.end());
+        std::cout << "Compte supprimé avec succès!" << std::endl;
+    } else {
+        std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+    }
+}
+
+// In banque.cpp
+void GestionnaireBanque::rechercherCompte(int compteId) const {
+    for (const auto& compte : comptes) {
+        if (compte->getNumeroCompte() == compteId) {
+            // Display account details
+            std::cout << "Compte trouvé: " << std::endl;
+            // ... (Print account information)
+            return;
+        }
+    }
+    std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+}

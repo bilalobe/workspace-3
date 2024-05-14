@@ -54,7 +54,8 @@ private:
 
     // Helper function to calculate balance
     double calculerBalance() const;
-};
+
+    void ajouterPret(const Pret& pret);
 
 class Paiement {
 public:

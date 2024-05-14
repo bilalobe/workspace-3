@@ -23,8 +23,11 @@ public:
     void nouveauClient(const std::string& nom);
     void modifierClient(int clientId);
     void supprimerClient(int clientId);
-    void afficherClients() const;
-    void rechercherClient(const std::string& nom) const; 
+    void afficherClients() const; 
+
+    // Custom find methods for Client
+    void rechercherClientParNom(const std::string& nom) const; 
+    void rechercherClientParId(int clientId) const; 
 
     // New methods for Compte management
     void creerCompte(int clientId); 

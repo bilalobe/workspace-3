@@ -1,6 +1,3 @@
-#include <iostream>
-#include <string> // for getline() functions
-
 #include "banque.h" 
 #include "menu.h" 
 #include "client.h"
