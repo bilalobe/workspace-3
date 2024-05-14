@@ -81,7 +81,7 @@ std::vector<Transaction> readTransactionsFromFile() {
         }
         file.close();
     } else {
-        throw std::runtime_error("Failed to open transactions file for reading.");
+        throw 
     }
 
     return transactions;
