@@ -18,15 +18,9 @@
 using namespace std;
 
 
+GestionnaireBanque banque; // Global banque object
+
 int main() {
-    // Create the GestionnaireBanque object
-    GestionnaireBanque banque;  
-
-    // Create a Menu object, passing the reference to the bank
-    Menu menu(banque);
-    
-    // Start by displaying the main menu
-    menu.afficherMenuPrincipal(); 
-
+    afficherMenuPrincipal();
     return 0;
 }
