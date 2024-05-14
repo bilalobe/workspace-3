@@ -3,7 +3,10 @@
 
 #include "transaction.h"
 #include "pret.h"
-// ... other includes as needed ...
+#include <ctime>
+#include <chrono>
+
+std::string getCurrentDateTime();
 
 void logTransaction(const std::string& filename, const Transaction& transaction);
 

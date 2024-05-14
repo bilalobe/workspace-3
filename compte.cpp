@@ -1,5 +1,6 @@
 #include "compte.h"
 #include "g_error.h" 
+#include "logutils.h" 
 #include <iostream>
 
 // Constructor
@@ -14,7 +15,19 @@ const std::string& Compte::getType() const { return type; }
 
 // Deposit method
 void Compte::Deposer(double montant) {
-    solde += montant; 
+    if (montant > 0) {
+        solde += montant;
+
+        // Construct a Transaction object to log:
+        Transaction depositTransaction(Transaction::Type::Depot, montant, getCurrentDateTime(), 
+                                        std::make_shared)
+
+        // Log the transaction 
+        logTransaction("transactions.log", depositTransaction);
+
+    } else {
+        throw std::invalid_argument("Invalid deposit amount: Amount must be positive.");
+    }
 }
 
 // Withdraw method
