@@ -20,16 +20,15 @@ std::string getCurrentDateTime() {
     return std::string(buffer); 
 }
 
-void logTransaction(const std::string& filename, const Transaction& transaction) {
-    std::ofstream logFile(filename, std::ios_base::app); // Open in append mode
+void logTransaction(const std::string& filename, const Transaction& transaction) { 
+    std::ofstream logFile(filename, std::ios_base::app);
     if (logFile.is_open()) {
-        // Format the log entry as needed
-        logFile << transaction.getDateHeure() << ","
+        logFile << transaction.getDateHeure() << "," 
                 << transaction.typeToStr() << ","
                 << transaction.getMontant() << ","
-                << transaction.getCompteAssocie()->getNumeroCompte() << "\n"; 
-        logFile.close();
-    } else {
+                << transaction.getCompteAssocie()->getNumeroCompte() << 
+        logFile.close(); 
+    } else { 
         throw std::runtime_error("Unable to open log file " + filename);
-    }
+    } 
 }
