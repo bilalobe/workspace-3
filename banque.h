@@ -7,17 +7,16 @@
 
 #include "compte.h"
 #include "pret.h"
-#include "client.h" // Include for the Client class
+#include "client.h" 
 #include "compte.h"
 #include "transaction.h"
 
 class GestionnaireBanque {
 public:
-    std::vector
 
     // Existing methods
+    int genererNumeroCompteUnique();
     bool compteExists(int numeroCompte) const;
-    std::shared_ptr
 
     // New methods for Client management
     void nouveauClient(const std::string& nom);
@@ -39,11 +38,22 @@ public:
     // New methods for Transaction management
     void deposer(int compteId, double montant); 
     void retirer(int compteId, double montant); 
+
+    void afficherTransactionsCompte(int compteId) const;
+    void afficherTransactionsClient(int clientId) const;
     
+    void afficherPrets() const;
+
 private:
+    int numeroCompte;
+    double solde;
+
     Pret pret;
     int dernierIdClient = 1; // Add for generating Client IDs
     int dernierIdCompte = 1;  // Add for generating Compte IDs 
+    std::vector<Compte> comptesDuClient;
+    std::vector<Client> clients;
+    std::vector<std::shared_ptr<Compte>> comptes;
 };
 
 #endif 

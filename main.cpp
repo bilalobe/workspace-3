@@ -9,7 +9,6 @@
 #include "pret.h"
 
 
-
 using namespace std;
 
 // Function Declarations (moved from menu.h)
@@ -18,6 +17,7 @@ void afficherMenuClient();
 void afficherMenuCompte(); 
 void afficherMenuTransaction();
 void afficherSousMenuTransactions();
+void demanderPret();
 void afficherMenuPret(); 
 void afficherSousMenuRechercherClient();
 
@@ -324,7 +324,7 @@ void afficherSousMenuTransactions() {
             }
             case 3: {
                 int clientId;
-                std::cout << "Entrez " 
+                std::cout << "Entrez " ;
                 std::cin >> clientId;
                 banque.afficherTransactionsClient(clientId); // Implement in GestionnaireBanque
                 break;

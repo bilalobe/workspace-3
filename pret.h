@@ -8,7 +8,7 @@
 
 #include "client.h"
 #include "transaction.h"
-
+#include "pret.h"
 class Pret {
 public:
     Pret(double montant, double taux, int duree, const std::string& dateDebut, const std::string& dateRemboursement);
@@ -39,7 +39,7 @@ private:
     std::chrono::system_clock::time_point dateDebut;
     std::chrono::system_clock::time_point dateRemboursement;
     std::chrono::system_clock::time_point derniereDatePaiement;
-
+    std::vector<Pret> prets; 
     std::shared_ptr<Compte> compteAssociePtr;
     std::vector<Paiement> paiements;
 
@@ -56,6 +56,7 @@ private:
     double calculerBalance() const;
 
     void ajouterPret(const Pret& pret);
+};
 
 class Paiement {
 public:

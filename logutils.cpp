@@ -28,8 +28,8 @@ void logTransaction(const std::string& filename, const Transaction& transaction)
         logFile << transaction.getDateHeure() << "," 
                 << transaction.typeToStr() << ","
                 << transaction.getMontant() << ","
-                << transaction.getCompteAssocie()->getNumeroCompte() << 
-        logFile.close(); 
+                << transaction.getCompteAssocie()->getNumeroCompte() << std::endl;
+logFile.close(); 
     } else { 
         throw std::runtime_error("Unable to open log file " + filename);
     } 

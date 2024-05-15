@@ -23,7 +23,6 @@ private:
     std::chrono::system_clock::time_point derniereDatePaiement; 
 
     static int nextLoanId; 
-    std::vector
     
 bool operator==(const Pret& other) const {
     return montant == other.montant;

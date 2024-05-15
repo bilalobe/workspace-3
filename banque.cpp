@@ -2,47 +2,30 @@
 #include "client.h"
 #include "compte.h"
 #include <iostream> 
+#include <sstream>
+#include <algorithm>
+#include <random>
+#include <fstream>
 
 using namespace std;
 
 
 int GestionnaireBanque::genererNumeroCompteUnique() {
-     std::random_device rd;  
-     std::mt19937 generator(rd());  
-     std::uniform_int_distribution<int> distribution(10000, 99999);
-
-     int newNumeroCompte;
-         bool duplicateFound;
+    std::random_device rd;
+    std::mt19937 generator(rd());
+    std::uniform_int_distribution<int> distribution(10000, 99999); 
+    int newNumeroCompte;
     do {
-        duplicateFound = false;
-        newNumeroCompte = distribution(generator);
-        for (const auto& client : clients) {
-            if (client.numeroCompteExists(newNumeroCompte)) {
-                duplicateFound = true;
-                break; // Duplicate found, try again
-            }
-        }
-    } while (duplicateFound); 
-
+        newNumeroCompte = distribution(generator); 
+    } while (compteExists(newNumeroCompte)); // Check against existing accounts in GestionnaireBanque
     return newNumeroCompte;
 }
 
-bool GestionnaireBanque::compteExists(int numeroCompte) {
-    for (const auto& client : clients) {
-        if (client.numeroCompteExists(numeroCompte)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
-// In banque.cpp
 void GestionnaireBanque::nouveauClient(const std::string& nom) {
     std::string clientName;
     std::cout << "Entrez le nom du client: ";
-    std::cin.ignore(); // Ignore any leftover newline characters
-    std::getline(std::cin, clientName); // Read the entire line (to allow for spaces in the name)
+    std::cin.ignore();
+    std::getline(std::cin, clientName);
 
     Client client(dernierIdClient++, clientName);
     clients.push_back(client);
@@ -54,18 +37,18 @@ void GestionnaireBanque::modifierClient(int clientId) {
         if (client.getId() == clientId) {
             std::cout << "Entrez le nouveau nom du client: ";
             std::string nouveauNom;
-            std::cin.ignore(); 
-            std::getline(std::cin, nouveauNom); 
+            std::cin.ignore();
+            std::getline(std::cin, nouveauNom);
             client.setNom(nouveauNom);
             std::cout << "Client modifié avec succès!" << std::endl;
-            return; // Client found and modified, exit the function
+            return;
         }
     }
     std::cout << "Client avec l'ID " << clientId << " non trouvé." << std::endl;
 }
 
 void GestionnaireBanque::supprimerClient(int clientId) {
-    // Using std::remove_if for better efficiency
+    // Using std::remove_if for efficient removal
     auto newEnd = std::remove_if(clients.begin(), clients.end(),
                                  [clientId](const Client& c) { return c.getId() == clientId; });
     if (newEnd != clients.end()) {
@@ -104,12 +87,35 @@ void GestionnaireBanque::rechercherClientParId(int clientId) const {
     for (const auto& client : clients) {
         if (client.getId() == clientId) {
             std::cout << "Client trouvé: ID: " << client.getId() << ", Nom: " << client.getNom() << std::endl;
-            return; // Client found, exit the function
+            return;
         }
     }
     std::cout << "Aucun client trouvé avec l'ID " << clientId << "." << std::endl;
 }
-// In banque.cpp
+
+bool GestionnaireBanque::compteExists(int numeroCompte) const {
+    for (const auto& compte : comptes) {
+        if (compte->getNumeroCompte() == numeroCompte) {
+            return true;
+        }
+    }
+    return false;
+}
+
+ void GestionnaireBanque::creerCompte(int clientId) {
+     auto it = std::find_if(clients.begin(), clients.end(),
+                             [clientId](const Client& c) { return c.getId() == clientId; });
+     if (it != clients.end()) {
+         int numeroCompte = genererNumeroCompteUnique();
+         comptes.push_back(std::make_shared<Compte>(numeroCompte, 0.0, "Courant")); // Create a new Compte object
+        comptesDuClient[clientId].push_back(numeroCompte); // Add the account to the client's account list
+        std::cout << "Compte créé avec succès! Numéro de compte: " << numeroCompte << std::endl;
+    } else {
+        std::cout << "Client avec l'ID " << clientId << " non trouvé." << std::endl;
+    }
+}
+
+
 void GestionnaireBanque::afficherTransactionsCompte(int compteId) const {
     std::cout << "\n----- Transactions du compte " << compteId << " -----" << std::endl;
 
@@ -146,7 +152,7 @@ void GestionnaireBanque::afficherTransactionsCompte(int compteId) const {
         std::cout << "Aucune transaction trouvée pour le compte " << compteId << std::endl;
     }
 }
-// In banque.cpp
+
 void GestionnaireBanque::afficherTransactionsClient(int clientId) const {
     std::cout << "\n----- Transactions du client " << clientId << " -----" << std::endl;
 
@@ -160,7 +166,7 @@ void GestionnaireBanque::afficherTransactionsClient(int clientId) const {
     bool transactionsTrouvees = false; 
 
     // Get all account IDs associated with the client
-    std::vector
+    std::vector;
 
     while (std::getline(logFile, line)) {
         std::stringstream ss(line);
@@ -191,17 +197,16 @@ void GestionnaireBanque::afficherTransactionsClient(int clientId) const {
     }
 }
 
-std::vector
 
 void GestionnaireBanque::afficherPrets() const {
     std::cout << "\n----- Prets -----" << std::endl;
 
-    if (prets.getPrets().empty()) {
+    if (pret.getPrets().empty()) {
         std::cout << "Aucun prêt enregistré." << std::endl;
         return;
     }
 
-    for (const auto& pret : prets.getPrets()) {
+    for (const auto& pret : pret.getPrets()) {
         pret.afficherPret(); 
         std::cout << "------------------------" << std::endl; 
     }

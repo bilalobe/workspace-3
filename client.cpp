@@ -1,5 +1,5 @@
 #include "client.h"
-
+#include <string>
 using namespace std;
 
 Client::Client(int id, const std::string& nom, const std::string& adresse) 
@@ -18,3 +18,12 @@ std::string Client::getAdresse() const {
     return adresse; 
 }
 
+void Client::setNom(const std::string &nom)
+{
+    this->nom = nom;
+}
+
+void Client::setAdresse(const std::string &adresse)
+{ 
+    this->adresse = adresse;
+}
