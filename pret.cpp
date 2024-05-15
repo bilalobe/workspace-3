@@ -92,6 +92,10 @@ Pret::Pret(double montant, double taux, int duree, const std::string& dateDebutS
     prets.push_back(pret);
     }
 
+    const std::vector<Pret> Prets::getPrets() const {
+    return prets;
+    
+    }
     std::shared_ptr<Pret> Prets::getPret(int pretId) const {
         for (const auto& pret : prets) {
             if (pret.getId() == pretId) {
