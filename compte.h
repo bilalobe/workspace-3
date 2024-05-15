@@ -2,7 +2,7 @@
 #define COMPTE_H
 
 #include <string>
-
+#include "client.h"
 
 class Compte {
 public:

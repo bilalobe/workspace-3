@@ -9,6 +9,7 @@
 #include "pret.h"
 #include "transaction.h"
 #include "banque.h"
+#include "client.h"
 
 using Paiement = Pret::Paiement; 
 

@@ -355,7 +355,7 @@ void afficherMenuPret() {
                 break; 
             }
             case 2:
-                banque.afficherPrets(clientIdSession); // Pass client ID for access control
+                banque.afficherPrets(compteId); // Pass client ID for access control
                 break;
             case 3: {
                 int pretId;
@@ -369,7 +369,7 @@ void afficherMenuPret() {
                 std::cout << "Entrez la date du remboursement (YYYY-MM-DD) : ";
                 std::cin >> datePaiementStr;
 
-                banque.enregistrerRemboursement(pretId, montant, datePaiementStr, clientIdSession);
+                //banque.enregistrerRemboursement(pretId, montant, datePaiementStr, clientIdSession);
                 break; 
             }
             case 4:
