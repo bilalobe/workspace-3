@@ -19,8 +19,7 @@ private:
     int duree;
     std::chrono::system_clock::time_point dateDebut;
     std::chrono::system_clock::time_point dateRemboursement;
-    std::vector<Pret> Pret::prets;
-
+    const std::vector<Pret> getPrets() const; 
 public:
     // Constructor
     Pret(double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr);
