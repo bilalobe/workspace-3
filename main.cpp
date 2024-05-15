@@ -1,13 +1,19 @@
 #include <iostream>
 #include <vector>
 
-#include "client.cpp"
-#include "compte.cpp"
-#include "transaction.cpp"
-#include "banque.cpp" 
-#include "pret.cpp" 
+#include "compte.h"
 #include "pret.h"
+#include "client.h"
+#include "banque.h"
+#include "transaction.h"
+using namespace std;
 
+
+
+
+
+GestionnaireBanque banque;
+Pret prets;
 
 using namespace std;
 
@@ -17,7 +23,6 @@ void afficherMenuClient();
 void afficherMenuCompte(); 
 void afficherMenuTransaction();
 void afficherSousMenuTransactions();
-void demanderPret();
 void afficherMenuPret(); 
 void afficherSousMenuRechercherClient();
 
@@ -351,7 +356,8 @@ void afficherMenuPret() {
 
         switch (choix) {
             case 1: {
-                demanderPret(); 
+                banque.demanderPret( clientIdSession);
+
                 break; 
             }
 

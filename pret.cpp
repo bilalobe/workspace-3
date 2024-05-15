@@ -63,15 +63,22 @@ Pret::Pret(double montant, double taux, int duree, const std::string& dateDebutS
         return duree;
     }
 
-    std::string Pret::getDateDebut() const
-    {
-        return std::string();
+    std::string Pret::getDateDebut() const {
+        std::time_t debut_time = std::chrono::system_clock::to_time_t(dateDebut);
+        std::tm* debut_tm = std::localtime(&debut_time);
+        std::stringstream ss;
+        ss << std::put_time(debut_tm, "%Y-%m-%d");
+        return ss.str();
     }
 
-    std::string Pret::getDateRemboursement() const
-    {
-        return std::string();
+    std::string Pret::getDateRemboursement() const {
+        std::time_t remboursement_time = std::chrono::system_clock::to_time_t(dateRemboursement);
+        std::tm* remboursement_tm = std::localtime(&remboursement_time);
+        std::stringstream ss;
+        ss << std::put_time(remboursement_tm, "%Y-%m-%d");
+        return ss.str();
     }
+    
     std::chrono::system_clock::time_point getDerniereDatePaiement() const {
         return derniereDatePaiement;
     }
@@ -81,7 +88,7 @@ Pret::Pret(double montant, double taux, int duree, const std::string& dateDebutS
         return paiements;
     }
 
-    int Prets::ajouterPret(const Pret& pret) {
+    void Pret::ajouterPret(const Pret& pret) {
     prets.push_back(pret);
     }
 
@@ -263,29 +270,150 @@ class Pret::Paiement{
 // Assume you have a global vector for transactions
 std::vector<Paiement> transactions;
 
-// Function to display all transactions
-void afficherTransactions() {
-    std::cout << "\nAll Transactions:\n";
-    for (const auto& transaction : transactions) {
-        std::time_t time_t_transaction = std::chrono::system_clock::to_time_t(transaction.datePaiement);
-        std::tm* tm_transaction = std::localtime(&time_t_transaction);
-        std::cout << "Amount: " << transaction.getMontant() << " - Date: " << std::put_time(tm_transaction, "%Y-%m-%d") << std::endl; 
-    }
+Pret::Pret(double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr)
+    : id(nextLoanId++), montant(montant), tauxAnnuel(taux), duree(duree), dateDebut(stringToTimePoint(dateDebutStr)),
+      dateRemboursement(stringToTimePoint(dateRemboursementStr)), derniereDatePaiement(stringToTimePoint("1970-01-01"))
+{}
+
+Pret::Pret(int id, double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr)
+    : id(id), montant(montant), tauxAnnuel(taux), duree(duree), dateDebut(stringToTimePoint(dateDebutStr)),
+      dateRemboursement(stringToTimePoint(dateRemboursementStr)), derniereDatePaiement(stringToTimePoint("1970-01-01"))
+{}
+
+// Destructor
+Pret::~Pret() {}
+
+// Getters
+int Pret::getId() const {
+    return id;
 }
 
-// Function to record a repayment
-void enregistrerRemboursement(int pretId, double montant, const std::string& datePaiementStr) {
-    for (auto& pret : Pret::prets) {
-        if (pret.getId() == pretId) {
-            pret.enregistrerPaiement(montant, datePaiementStr); // Call Pret::enregistrerPaiement()
-            std::cout << "Remboursement enregistré avec succès pour le prêt ID " << pretId << std::endl;
-
-            // Add the transaction to the global transactions vector
-            transactions.push_back(Paiement(montant, stringToTimePoint(datePaiementStr))); 
-
-            return;
-        }
-    }
-    std::cout << "Aucun prêt trouvé avec l'ID " << pretId << std::endl;
+double Pret::getMontant() const {
+    return montant;
 }
 
+double Pret::getTaux() const {
+    return tauxAnnuel;
+}
+
+int Pret::getDuree() const {
+    return duree;
+}
+
+std::string Pret::getDateDebut() const {
+    std::time_t debut_time = std::chrono::system_clock::to_time_t(dateDebut);
+    std::tm* debut_tm = std::localtime(&debut_time);
+    std::stringstream ss;
+    ss << std::put_time(debut_tm, "%Y-%m-%d");
+    return ss.str();
+}
+
+std::string Pret::getDateRemboursement() const {
+    std::time_t remboursement_time = std::chrono::system_clock::to_time_t(dateRemboursement);
+    std::tm* remboursement_tm = std::localtime(&remboursement_time);
+    std::stringstream ss;
+    ss << std::put_time(remboursement_tm, "%Y-%m-%d");
+    return ss.str();
+}
+
+std::chrono::system_clock::time_point Pret::getDerniereDatePaiement() const {
+    return derniereDatePaiement;
+}
+
+const std::vector
+
+// Setters
+void Pret::setId(int id) {
+    this->id = id;
+}
+
+void Pret::setMontant(double montant) {
+    this->montant = montant;
+}
+
+void Pret::setTaux(double taux) {
+    tauxAnnuel = taux;
+}
+
+void Pret::setDuree(int duree) {
+    this->duree = duree;
+}
+
+void Pret::setDateDebut(const std::string& dateDebutStr) {
+    dateDebut = stringToTimePoint(dateDebutStr); // Assign to member variable
+}
+
+void Pret::setDateRemboursement(const std::string& dateRemboursementStr) {
+    dateRemboursement = stringToTimePoint(dateRemboursementStr);
+}
+
+// Calculate simple interest accrued since last payment
+double Pret::calculerInteretSimpleDepuisDernierPaiement() const {
+    if (derniereDatePaiement == stringToTimePoint("1970-01-01")) {
+        return 0.0; // No payments made yet
+    }
+    double balance = calculerBalance(); // Get the current balance before adding interest
+    auto now = std::chrono::system_clock::now();
+    std::chrono::duration
+
+// Calculate total compound interest
+double Pret::calculerInteretComposeTotal() const {
+    double totalAmount = montant * pow((1 + tauxAnnuel), duree);
+    return totalAmount - montant;
+}
+
+// Calculate balance
+double Pret::calculerBalance() const {
+    double balance = montant;
+    double totalPaid = 0.0;
+    for (const auto& paiement : paiements) {
+        totalPaid += paiement.getMontant();
+    }
+    // Add simple interest accrued since the last payment
+    balance += calculerInteretSimpleDepuisDernierPaiement(); 
+    balance -= totalPaid;
+    return balance;
+}
+
+// Record a payment
+void Pret::enregistrerPaiement(double montant, const std::string& datePaiementStr) {
+    if (montant <= 0.0) {
+        std::cout << "Error: Invalid payment amount.\n";
+        return;
+    }
+    if (getMontant() < montant) {
+        std::cout << "Error: Payment exceeds remaining balance.\n";
+        return;
+    }
+    double balance = getMontant(); 
+    balance -= montant;
+    paiements.push_back(Paiement(montant, stringToTimePoint(datePaiementStr)));
+    // Convert and update last payment date
+    derniereDatePaiement = stringToTimePoint(datePaiementStr);
+    std::cout << "Payment recorded successfully.\n";
+}
+
+// Helper function to convert date string (YYYY-MM-DD) to time_point
+std::chrono::system_clock::time_point Pret::stringToTimePoint(const std::string& dateStr) const {
+    std::tm tm = {};
+    std::istringstream ss(dateStr);
+    ss >> std::get_time(&tm, "%Y-%m-%d");
+    return std::chrono::system_clock::from_time_t(std::mktime(&tm));
+}
+
+// Display loan details
+void Pret::afficherPret() const {
+    std::cout << "\nLoan Details:\n";
+    std::cout << "Amount: " << montant << "\n";
+    std::cout << "Annual Rate: " << tauxAnnuel << "\n";
+    std::cout << "Duration: " << duree << " years\n";
+    std::time_t debut_time = std::chrono::system_clock::to_time_t(dateDebut);
+    std::tm* debut_tm = std::localtime(&debut_time);
+    std::cout << "Start Date: " << std::put_time(debut_tm, "%Y-%m-%d") << "\n";
+    std::time_t remboursement_time = std::chrono::system_clock::to_time_t(dateRemboursement);
+    std::tm* remboursement_tm = std::localtime(&remboursement_time);
+    std::cout << "End Date: " << std::put_time(remboursement_tm, "%Y-%m-%d") << "\n";
+    std::cout << "Balance: " << calculerBalance() << "\n";
+    std::cout << "Total Interest: " << calculerInteretComposeTotal() << "\n";
+    std::cout << "Total Payments: " << std::fixed << std::setprecision(2) << std::accumulate(paiements.begin(), paiements.end(), 0.0, [](double sum, const Paiement& paiement) { return sum + paiement.montant; }) << "\n";
+}

@@ -102,13 +102,7 @@ bool GestionnaireBanque::compteExists(int numeroCompte) const {
     return false;
 }
 
-std::shared_ptr<Pret> GestionnaireBanque::getPret(int pretId) const {
-    for (const auto& pret : prets.getPrets()) {
-        if (pret.getId() == pretId) {
-            return std::make_shared<Pret>;
-        }
-    }
-}
+
 
 void GestionnaireBanque::afficherComptes() const {
     if (comptes.empty()) {
@@ -129,6 +123,34 @@ void GestionnaireBanque::rechercherCompte(int compteId) const {
         }
     }
     std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+}
+
+ Pret GestionnaireBanque::demanderPret(int clientId, double montant, int duree, double tauxInteret) {
+    int clientId = clientIdSession;
+    if (clientId == -1) {
+        std::cout << "Vous devez être connecté pour demander un prêt." << std::endl;
+        return;
+    }
+
+    double montant;
+    int duree;
+    double tauxInteret;
+
+    std::cout << "Entrez le montant du prêt: ";
+    std::cin >> montant;
+
+    std::cout << "Entrez la durée du prêt (en mois): ";
+    std::cin >> duree;
+
+    std::cout << "Entrez le taux d'intérêt (en %): ";
+    std::cin >> tauxInteret;
+
+    try {
+        Pret pret = banque.demanderPret(clientId, montant, duree, tauxInteret);
+        std::cout << "Prêt accordé avec succès! ID du prêt: " << pret.getId() << std::endl;
+    } catch (const std::runtime_error& e) {
+        std::cout << "Erreur: " << e.what() << std::endl;
+    }
 }
 
 void GestionnaireBanque::afficherPrets(int clientId) const {
@@ -269,6 +291,7 @@ std::shared_ptr<Pret> GestionnaireBanque::getPret(int pretId) const
 
     return std::shared_ptr<Pret>();
 }
+
 
 
 

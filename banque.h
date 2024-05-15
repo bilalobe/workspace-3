@@ -37,7 +37,7 @@ public:
     void modifierCompte(int clientId); 
     void supprimerCompte(int compteId); 
     void afficherComptes() const;
-    void rechercherCompte(int compteId) const; 
+    void rechercherCompte(int compteId) const;
 
     // New methods for Transaction management
     void deposer(int compteId, double montant); 
@@ -47,6 +47,8 @@ public:
     void afficherTransactionsClient(int clientId) const;
 
     void afficherPrets(int clientId) const;
+    Pret demanderPret(int clientId, double montant, int duree, double tauxInteret);
+
 
 
 private:
@@ -60,6 +62,8 @@ private:
     std::vector<Compte> comptesDuClient;
     std::vector<Client> clients;
     std::vector<std::shared_ptr<Compte>> comptes;
+    std::vector<Paiement> transactions;
+
 };
 
 #endif 
