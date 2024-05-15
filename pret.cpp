@@ -22,7 +22,7 @@ private:
     std::chrono::system_clock::time_point dateRemboursement; 
     std::vector<Paiement> paiements;
     std::chrono::system_clock::time_point derniereDatePaiement; 
-
+    
     static int nextLoanId; 
     
 bool operator==(const Pret& other) const {
@@ -116,6 +116,7 @@ public:
         dateRemboursement = stringToTimePoint(dateRemboursementStr);
     }
 
+    
     void Pret::ajouterPret(const Pret& pret) {
         pret.setId(nextLoanId++); 
         prets.push_back(pret); 
@@ -171,7 +172,17 @@ public:
         derniereDatePaiement = stringToTimePoint(datePaiementStr); 
         std::cout << "Payment recorded successfully.\n";
     }
-    
+    void Pret::enregistrerRemboursement(int pretId, double montant, const std::string& datePaiementStr) {
+    for (auto& pret : prets) {
+        if (pret.getId() == pretId) {
+            pret.enregistrerPaiement(montant, datePaiementStr); // Call Pret::enregistrerPaiement()
+            std::cout << "Remboursement enregistré avec succès pour le prêt ID " << pretId << std::endl;
+            return; 
+        }
+    }
+
+    std::cout << "Aucun prêt trouvé avec l'ID " << pretId << std::endl;
+}
     void afficherPret() const {
         std::cout << "\nLoan Details:\n";
         std::cout << "Amount: " << montant << "\n";
@@ -227,3 +238,11 @@ class Pret::Paiement{
     }
 
 };
+
+// Function to retrieve all loans
+std::vector<Pret> getPrets() {
+
+    std::vector<Pret> prets;
+    // ... (Implementation to fetch loans)
+    return prets;
+}

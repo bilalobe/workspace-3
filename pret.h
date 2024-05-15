@@ -9,10 +9,14 @@
 #include "client.h"
 #include "transaction.h"
 #include "pret.h"
+#include "compte.h"
+
 class Pret {
 public:
     Pret(double montant, double taux, int duree, const std::string& dateDebut, const std::string& dateRemboursement);
-    ~Pret();
+    Pret(){}
+
+    void ajouterPret(const Pret& pret); 
 
     double getMontant() const;
     double getTaux() const;
@@ -27,6 +31,7 @@ public:
     void setDateRemboursement(const std::string& dateRemboursement);
     void setCompteAssocie(const std::shared_ptr<Compte>& compteAssociePtr);
 
+    void enregistrerRemboursement(int pretId, double montant, const std::string& datePaiementStr, int clientId);
     void enregistrerPaiement(double montant, const std::string& datePaiement);
     void afficherPret() const;
     const std::vector<Paiement>& getPaiements() const;
@@ -75,3 +80,4 @@ private:
 };
 
 #endif
+

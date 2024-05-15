@@ -1,11 +1,12 @@
 #include "banque.h"
-#include "client.h"
-#include "compte.h"
+#include "transaction.h"
+
 #include <iostream> 
 #include <sstream>
 #include <algorithm>
 #include <random>
 #include <fstream>
+
 
 using namespace std;
 
@@ -102,31 +103,58 @@ bool GestionnaireBanque::compteExists(int numeroCompte) const {
     return false;
 }
 
- void GestionnaireBanque::creerCompte(int clientId) {
-     auto it = std::find_if(clients.begin(), clients.end(),
-                             [clientId](const Client& c) { return c.getId() == clientId; });
-     if (it != clients.end()) {
-         int numeroCompte = genererNumeroCompteUnique();
-         comptes.push_back(std::make_shared<Compte>(numeroCompte, 0.0, "Courant")); // Create a new Compte object
-        comptesDuClient[clientId].push_back(numeroCompte); // Add the account to the client's account list
-        std::cout << "Compte créé avec succès! Numéro de compte: " << numeroCompte << std::endl;
-    } else {
-        std::cout << "Client avec l'ID " << clientId << " non trouvé." << std::endl;
+std::shared_ptr<Pret> GestionnaireBanque::getPret(int pretId) const {
+    for (const auto& pret : prets.getPrets()) {
+        if (pret.getId() == pretId) {
+            return std::make_shared<Pret>;
+        }
     }
 }
 
+void GestionnaireBanque::afficherComptes() const {
+    if (comptes.empty()) {
+        std::cout << "Aucun compte enregistré." << std::endl;
+        return;
+    }
+    std::cout << "\nListe des comptes:" << std::endl;
+    for (const auto& compte : comptes) {
+        std::cout << "Numéro de compte: " << compte->getNumeroCompte() << ", Solde: " << compte->getSolde() << std::endl;
+    }
+}
+
+void GestionnaireBanque::rechercherCompte(int compteId) const {
+    for (const auto& compte : comptes) {
+        if (compte->getNumeroCompte() == compteId) {
+            std::cout << "Compte trouvé: Numéro de compte: " << compte->getNumeroCompte() << ", Solde: " << compte->getSolde() << std::endl;
+            return;
+        }
+    }
+    std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+}
+
+void GestionnaireBanque::afficherPrets(int clientId) const {
+    std::cout << "\n----- Prets -----" << std::endl;
+    if (prets.getPrets().empty()) {
+        std::cout << "Aucun prêt enregistré." << std::endl;
+        return;
+    }
+    for (const auto& pret : prets.getPrets()) { 
+        if (pret.getClientId() == clientId) {
+            pret.afficherPret(); 
+            std::cout << "------------------------" << std::endl; 
+        }
+    } 
+}
 
 void GestionnaireBanque::afficherTransactionsCompte(int compteId) const {
     std::cout << "\n----- Transactions du compte " << compteId << " -----" << std::endl;
-
     std::ifstream logFile("transactions.log");
     if (!logFile.is_open()) {
         std::cout << "Erreur: Impossible d'ouvrir le fichier de transactions." << std::endl;
         return;
     }
-
     std::string line;
-    bool transactionsTrouvees = false; // Flag to check if any transactions were found
+    bool transactionsTrouvees = false; 
     while (std::getline(logFile, line)) {
         std::stringstream ss(line);
         std::string dateHeure, type, montantStr, compteStr;
@@ -145,9 +173,7 @@ void GestionnaireBanque::afficherTransactionsCompte(int compteId) const {
             transactionsTrouvees = true;
         }
     }
-
     logFile.close();
-
     if (!transactionsTrouvees) {
         std::cout << "Aucune transaction trouvée pour le compte " << compteId << std::endl;
     }
@@ -155,18 +181,13 @@ void GestionnaireBanque::afficherTransactionsCompte(int compteId) const {
 
 void GestionnaireBanque::afficherTransactionsClient(int clientId) const {
     std::cout << "\n----- Transactions du client " << clientId << " -----" << std::endl;
-
     std::ifstream logFile("transactions.log");
     if (!logFile.is_open()) {
         std::cout << "Erreur: Impossible d'ouvrir le fichier de transactions." << std::endl;
         return;
     }
-
     std::string line;
     bool transactionsTrouvees = false; 
-
-    // Get all account IDs associated with the client
-    std::vector;
 
     while (std::getline(logFile, line)) {
         std::stringstream ss(line);
@@ -189,41 +210,67 @@ void GestionnaireBanque::afficherTransactionsClient(int clientId) const {
             transactionsTrouvees = true;
         }
     }
-
     logFile.close();
-
     if (!transactionsTrouvees) {
         std::cout << "Aucune transaction trouvée pour le client " << clientId << std::endl;
     }
 }
 
+void GestionnaireBanque::deposer(int compteId, double montant) {
+    for (auto& compte : comptes) {
+        if (compte->getNumeroCompte() == compteId) {
+            compte->Deposer(montant); 
+            std::cout << "Depot de " << montant << " reussi. Nouveau solde: " << compte->getSolde() << std::endl;
 
-void GestionnaireBanque::afficherPrets() const {
+            // Log the transaction
+            Transaction depositTransaction(Transaction::Type::Depot, montant, getCurrentDateTime(), 
+                                            compte); // Assuming getCurrentDateTime() is defined in logutils.h
+            logTransaction("transactions.log", depositTransaction);
+
+            return;
+        }
+    }
+    std::cout << "Erreur: Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+}
+
+void GestionnaireBanque::retirer(int compteId, double montant) {
+    for (auto& compte : comptes) {
+        if (compte->getNumeroCompte() == compteId) {
+            compte->Retirer(montant); 
+            std::cout << "Retrait de " << montant << " reussi. Nouveau solde: " << compte->getSolde() << std::endl;
+
+            // Log the transaction
+            Transaction withdrawalTransaction(Transaction::Type::Retrait, montant, getCurrentDateTime(), 
+                                            compte); 
+            logTransaction("transactions.log", withdrawalTransaction);
+
+            return;
+        }
+    }
+    std::cout << "Erreur: Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+}
+
+void GestionnaireBanque::afficherPrets(int clientId) const {
     std::cout << "\n----- Prets -----" << std::endl;
 
-    if (pret.getPrets().empty()) {
+    if (prets.getPrets().empty()) {
         std::cout << "Aucun prêt enregistré." << std::endl;
         return;
     }
-
-    for (const auto& pret : pret.getPrets()) {
-        pret.afficherPret(); 
-        std::cout << "------------------------" << std::endl; 
-    }
-}
-
-
-void Prets::enregistrerRemboursement(int pretId, double montant, const std::string& datePaiementStr) {
-    for (auto& pret : prets) {
-        if (pret.getId() == pretId) {
-            pret.enregistrerPaiement(montant, datePaiementStr); // Call Pret::enregistrerPaiement()
-            std::cout << "Remboursement enregistré avec succès pour le prêt ID " << pretId << std::endl;
-            return; 
+    for (const auto& pret : prets.getPrets()) { 
+        if (pret.getClientId() == clientId) {
+            pret.afficherPret(); 
+            std::cout << "------------------------" << std::endl; 
         }
-    }
-
-    std::cout << "Aucun prêt trouvé avec l'ID " << pretId << std::endl;
+    } 
 }
+
+std::shared_ptr<Pret> GestionnaireBanque::getPret(int pretId) const
+{
+    return std::shared_ptr<Pret>();
+}
+
+
 
 /* void GestionnaireBanque::sauvegarderClients(const std::string& filename) {
     std::ofstream outputFile(filename);

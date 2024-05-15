@@ -10,7 +10,7 @@
 #include "client.h" 
 #include "compte.h"
 #include "transaction.h"
-
+#include "logutils.h"
 class GestionnaireBanque {
 public:
 
@@ -28,9 +28,11 @@ public:
     void rechercherClientParNom(const std::string& nom) const; 
     void rechercherClientParId(int clientId) const; 
 
+    std::shared_ptr<Pret> getPret(int pretId) const;  
+
     // New methods for Compte management
     void creerCompte(int clientId); 
-    void modifierCompte(int compteId); 
+    void modifierCompte(int clientId); 
     void supprimerCompte(int compteId); 
     void afficherComptes() const;
     void rechercherCompte(int compteId) const; 
@@ -41,8 +43,9 @@ public:
 
     void afficherTransactionsCompte(int compteId) const;
     void afficherTransactionsClient(int clientId) const;
-    
-    void afficherPrets() const;
+
+    void afficherPrets(int clientId) const;
+
 
 private:
     int numeroCompte;
@@ -51,6 +54,7 @@ private:
     Pret pret;
     int dernierIdClient = 1; // Add for generating Client IDs
     int dernierIdCompte = 1;  // Add for generating Compte IDs 
+    std::vector<Pret> prets;
     std::vector<Compte> comptesDuClient;
     std::vector<Client> clients;
     std::vector<std::shared_ptr<Compte>> comptes;

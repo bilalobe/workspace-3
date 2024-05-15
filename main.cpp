@@ -354,9 +354,12 @@ void afficherMenuPret() {
                 demanderPret(); 
                 break; 
             }
-            case 2:
-                banque.afficherPrets(compteId); // Pass client ID for access control
+
+            case 2: { 
+                // Call a function to display loans 
+                banque.afficherPrets(clientIdSession);
                 break;
+            }
             case 3: {
                 int pretId;
                 double montant;
@@ -364,12 +367,18 @@ void afficherMenuPret() {
 
                 std::cout << "Entrez l'ID du prêt : ";
                 std::cin >> pretId;
-                std::cout << "Entrez le montant du remboursement : ";
-                std::cin >> montant;
-                std::cout << "Entrez la date du remboursement (YYYY-MM-DD) : ";
-                std::cin >> datePaiementStr;
 
-                //banque.enregistrerRemboursement(pretId, montant, datePaiementStr, clientIdSession);
+                std::shared_ptr<Pret> pret;
+
+                if (pret != nullptr) {
+                    std::cout << "Entrez le montant du remboursement : ";
+                    std::cin >> montant;
+                    std::cout << "Entrez la date du remboursement (YYYY-MM-DD) : ";
+                    std::cin >> datePaiementStr;
+                    banque.enregistrerRemboursement(pret, montant, datePaiementStr, clientIdSession);
+                } else {
+                    std::cout << "Aucun prêt trouvé avec l'ID " << pretId << "." << std::endl;
+                }
                 break; 
             }
             case 4:
