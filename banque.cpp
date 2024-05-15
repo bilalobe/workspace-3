@@ -127,9 +127,9 @@ void GestionnaireBanque::rechercherCompte(int compteId) const {
 
  Pret GestionnaireBanque::demanderPret(int clientId, double montant, int duree, double tauxInteret) {
     int clientId = clientIdSession;
-    if (clientId == -1) {
+    if (clientIdSession == -1) {
         std::cout << "Vous devez être connecté pour demander un prêt." << std::endl;
-        return;
+        return; 
     }
 
     double montant;
@@ -155,11 +155,11 @@ void GestionnaireBanque::rechercherCompte(int compteId) const {
 
 void GestionnaireBanque::afficherPrets(int clientId) const {
     std::cout << "\n----- Prets -----" << std::endl;
-    if (prets.getPrets().empty()) {
+    if (prets.empty()) { // Check if the vector is empty
         std::cout << "Aucun prêt enregistré." << std::endl;
         return;
     }
-    for (const auto& pret : prets.getPrets()) { 
+    for (const auto& pret : prets) { // Loop through the vector
         if (pret.getClientId() == clientId) {
             pret.afficherPret(); 
             std::cout << "------------------------" << std::endl; 
@@ -270,15 +270,23 @@ void GestionnaireBanque::retirer(int compteId, double montant) {
     }
     std::cout << "Erreur: Compte avec l'ID " << compteId << " non trouvé." << std::endl;
 }
+std::shared_ptr<Pret> GestionnaireBanque::getPret(int pretId) const
+{
+    for (const auto& pret : prets) {
+        if (pret.getId() == pretId) {
+            return std::make_shared<Pret>(pret); // Create a shared_ptr for the Pret
+        }
+    }
+    return nullptr; // Return nullptr if not found
+}
 
 void GestionnaireBanque::afficherPrets(int clientId) const {
     std::cout << "\n----- Prets -----" << std::endl;
-
-    if (prets.getPrets().empty()) {
+    if (prets.empty()) { // Check if the vector is empty
         std::cout << "Aucun prêt enregistré." << std::endl;
         return;
     }
-    for (const auto& pret : prets.getPrets()) { 
+    for (const auto& pret : prets) { // Loop through the vector
         if (pret.getClientId() == clientId) {
             pret.afficherPret(); 
             std::cout << "------------------------" << std::endl; 
@@ -286,11 +294,6 @@ void GestionnaireBanque::afficherPrets(int clientId) const {
     } 
 }
 
-std::shared_ptr<Pret> GestionnaireBanque::getPret(int pretId) const
-{
-
-    return std::shared_ptr<Pret>();
-}
 
 
 

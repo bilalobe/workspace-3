@@ -257,18 +257,7 @@ void Prets::enregistrerRemboursement(int pretId, double montant, const std::stri
 };
 
 
-class Pret::Paiement{
 
-    std::string Paiement::getDatePaiement() const
-    {
-        return std::string();
-    }
-
-};
-
-
-// Assume you have a global vector for transactions
-std::vector<Paiement> transactions;
 
 Pret::Pret(double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr)
     : id(nextLoanId++), montant(montant), tauxAnnuel(taux), duree(duree), dateDebut(stringToTimePoint(dateDebutStr)),
@@ -320,7 +309,6 @@ std::chrono::system_clock::time_point Pret::getDerniereDatePaiement() const {
     return derniereDatePaiement;
 }
 
-const std::vector
 
 // Setters
 void Pret::setId(int id) {

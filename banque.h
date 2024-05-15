@@ -52,17 +52,18 @@ public:
 
 
 private:
+    Banque banque;
+
+    int clientIdSession;
     int numeroCompte;
     double solde;
 
-    Pret pret;
     int dernierIdClient = 1; // Add for generating Client IDs
     int dernierIdCompte = 1;  // Add for generating Compte IDs 
     std::vector<Pret> prets;
     std::vector<Compte> comptesDuClient;
     std::vector<Client> clients;
     std::vector<std::shared_ptr<Compte>> comptes;
-    std::vector<Paiement> transactions;
 
 };
 

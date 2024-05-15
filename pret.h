@@ -4,22 +4,41 @@
 #include <string>
 #include <vector>
 #include <chrono>
-#include <memory>
+#include <iomanip>
+#include <sstream> 
+#include <cmath> 
+#include <numeric>
 
-#include "client.h"
-#include "transaction.h"
-#include "pret.h"
-#include "compte.h"
-#include "banque.h"
+// You likely need to include <iostream> for the output statements in this header file
+#include <iostream>
+
 class Pret {
 private:
-    int id; 
+    int id;
     double montant;
     double tauxAnnuel;
     int duree;
     std::chrono::system_clock::time_point dateDebut;
-    std::chrono::system_clock::time_point dateRemboursement;
-    std::vector<Pret> Pret::prets;
+    std::chrono::system_clock::time_point dateRemboursement; 
+    std::vector<Pret::Paiement> paiements; 
+    std::chrono::system_clock::time_point derniereDatePaiement; 
+
+    static int nextLoanId; 
+    
+    bool operator==(const Pret& other) const {
+        return montant == other.montant;
+    }
+
+    Pret& operator=(const Pret& other) {  
+        tauxAnnuel = other.tauxAnnuel;
+        duree = other.duree;
+        dateDebut = other.dateDebut;
+        dateRemboursement = other.dateRemboursement;
+        paiements = other.paiements;
+        derniereDatePaiement = other.derniereDatePaiement;
+        return *this;
+    }
+    
 
 public:
     // Constructor
@@ -37,8 +56,7 @@ public:
     std::string getDateDebut() const;
     std::string getDateRemboursement() const;
     std::chrono::system_clock::time_point getDerniereDatePaiement() const;
-    const std::vector<Paiement> getPaiements() const;
-
+    const std::vector<Pret::Paiement>& getPaiements() const { return paiements; }
 
     // Setters
     void setId(int id);
@@ -63,25 +81,34 @@ public:
     // Calculate balance
     double calculerBalance() const;
 
+    // Helper function to convert date string (YYYY-MM-DD) to time_point
+    std::chrono::system_clock::time_point stringToTimePoint(const std::string& dateStr) const; 
+
 private:
     static int nextLoanId; 
 };
 
-// Helper class to represent a payment
+
+// Helper class to represent a payment (within Pret class)
 class Pret::Paiement {
 public:
     Paiement(double montant, const std::chrono::system_clock::time_point& datePaiement)
         : montant(montant), datePaiement(datePaiement) {}
+
     Paiement() {}
+
     double getMontant() const {
         return montant;
     }
-    std::string getDatePaiement() const {
+
+    std::string getDatePaiement() const
+    {
         return std::string();
     }
+
 private:
     double montant;
     std::chrono::system_clock::time_point datePaiement;
 };
 
-#endif
+#endif 
