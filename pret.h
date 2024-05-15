@@ -10,11 +10,16 @@
 #include "transaction.h"
 #include "pret.h"
 #include "compte.h"
+#include "banque.h"
 
 class Pret {
 public:
     Pret(double montant, double taux, int duree, const std::string& dateDebut, const std::string& dateRemboursement);
     Pret(){}
+
+    // Initialize static members
+    std::vector<Pret> Pret::prets;
+    int Pret::nextLoanId = 1;
 
     void ajouterPret(const Pret& pret); 
 
@@ -35,7 +40,16 @@ public:
     void enregistrerPaiement(double montant, const std::string& datePaiement);
     void afficherPret() const;
     const std::vector<Paiement>& getPaiements() const;
-    std::shared_ptr<Compte> getCompteAssociePtr() const;
+
+    std::shared_ptr<Pret> getPret(int pretId) const; 
+    const std::vector<Pret> getPrets() const; 
+
+    double calculerInteretSimpleDepuisDernierPaiement() const;
+    double calculerInteretComposeTotal() const;
+    double calculerBalance() const;
+
+    
+
 
 private:
     double montant;

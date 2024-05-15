@@ -1,5 +1,4 @@
 #include "banque.h"
-#include "transaction.h"
 
 #include <iostream> 
 #include <sstream>
@@ -267,6 +266,7 @@ void GestionnaireBanque::afficherPrets(int clientId) const {
 
 std::shared_ptr<Pret> GestionnaireBanque::getPret(int pretId) const
 {
+
     return std::shared_ptr<Pret>();
 }
 

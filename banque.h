@@ -11,6 +11,8 @@
 #include "compte.h"
 #include "transaction.h"
 #include "logutils.h"
+#include "g_error.h"
+
 class GestionnaireBanque {
 public:
 

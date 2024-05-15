@@ -7,11 +7,9 @@
 #include <iostream>
 
 #include "pret.h"
-#include "transaction.h"
-#include "banque.h"
-#include "client.h"
 
-using Paiement = Pret::Paiement; 
+
+using Paiement = Pret::Paiement; // Now you can use Paiement directly within Pret
 
 class Pret {
 private:
@@ -43,13 +41,9 @@ Pret& operator=(const Pret& other) {
 
 public:
     // Constructor
-    Pret::Pret(double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr)
-    : montant(montant),
-      tauxAnnuel(taux),
-      duree(duree),
-      dateDebut(stringToTimePoint(dateDebutStr)),
-      dateRemboursement(stringToTimePoint(dateRemboursementStr)),
-      derniereDatePaiement(stringToTimePoint("1970-01-01")) // Default initialization
+Pret::Pret(double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr) 
+    : montant(montant), tauxAnnuel(taux), duree(duree), dateDebut(stringToTimePoint(dateDebutStr)), 
+      dateRemboursement(stringToTimePoint(dateRemboursementStr)), derniereDatePaiement(stringToTimePoint("1970-01-01"))
 {}
 
     Pret::~Pret() {}
@@ -87,7 +81,34 @@ public:
         return paiements;
     }
 
+    int Prets::ajouterPret(const Pret& pret) {
+    prets.push_back(pret);
+    }
 
+    std::shared_ptr<Pret> Prets::getPret(int pretId) const {
+        for (const auto& pret : prets) {
+            if (pret.getId() == pretId) {
+                return std::make_shared<Pret>(pret);
+            }
+
+        }
+        return nullptr;
+    }
+
+const std::vector<Pret> Prets::getPrets() const {
+    return prets;
+}
+
+void Prets::enregistrerRemboursement(int pretId, double montant, const std::string& datePaiementStr, int clientId) {
+    for (auto& pret : prets) {
+        if (pret.getId() == pretId) {
+            pret.enregistrerPaiement(montant, datePaiementStr); // Call the Pret::enregistrerPaiement() method
+            std::cout << "Remboursement enregistré avec succès pour le prêt ID " << pretId << std::endl;
+            return;
+        }
+    }
+    std::cout << "Aucun prêt trouvé avec l'ID " << pretId << "." << std::endl;
+}
 
     void Pret::setCompteAssociePtr(std::shared_ptr<Compte> compteAssociePtr) {
 
@@ -228,7 +249,6 @@ public:
     };
 };
 
-using Paiement = Pret::Paiement; // Now you can use Paiement directly within Pret
 
 class Pret::Paiement{
 
@@ -239,10 +259,33 @@ class Pret::Paiement{
 
 };
 
-// Function to retrieve all loans
-std::vector<Pret> getPrets() {
 
-    std::vector<Pret> prets;
-    // ... (Implementation to fetch loans)
-    return prets;
+// Assume you have a global vector for transactions
+std::vector<Paiement> transactions;
+
+// Function to display all transactions
+void afficherTransactions() {
+    std::cout << "\nAll Transactions:\n";
+    for (const auto& transaction : transactions) {
+        std::time_t time_t_transaction = std::chrono::system_clock::to_time_t(transaction.datePaiement);
+        std::tm* tm_transaction = std::localtime(&time_t_transaction);
+        std::cout << "Amount: " << transaction.getMontant() << " - Date: " << std::put_time(tm_transaction, "%Y-%m-%d") << std::endl; 
+    }
 }
+
+// Function to record a repayment
+void enregistrerRemboursement(int pretId, double montant, const std::string& datePaiementStr) {
+    for (auto& pret : Pret::prets) {
+        if (pret.getId() == pretId) {
+            pret.enregistrerPaiement(montant, datePaiementStr); // Call Pret::enregistrerPaiement()
+            std::cout << "Remboursement enregistré avec succès pour le prêt ID " << pretId << std::endl;
+
+            // Add the transaction to the global transactions vector
+            transactions.push_back(Paiement(montant, stringToTimePoint(datePaiementStr))); 
+
+            return;
+        }
+    }
+    std::cout << "Aucun prêt trouvé avec l'ID " << pretId << std::endl;
+}
+
