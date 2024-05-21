@@ -1,14 +1,9 @@
 #include "banque.h"
 
-#include <iostream> 
-#include <sstream>
-#include <algorithm>
-#include <random>
-#include <fstream>
 
 
 using namespace std;
-
+using json = nlohmann::json; // Use the json alias
 
 int GestionnaireBanque::genererNumeroCompteUnique() {
     std::random_device rd;
@@ -29,6 +24,7 @@ void GestionnaireBanque::nouveauClient(const std::string& nom) {
 
     Client client(dernierIdClient++, clientName);
     clients.push_back(client);
+    comptesDuClient.push_back(std::vector<int>()); // Initialize an empty vector for the new client's accounts
     std::cout << "Nouveau client ajouté avec succès! ID du client: " << client.getId() << std::endl;
 }
 
@@ -102,7 +98,45 @@ bool GestionnaireBanque::compteExists(int numeroCompte) const {
     return false;
 }
 
+void GestionnaireBanque::creerCompte(int clientId) {
+    for (size_t i = 0; i < clients.size(); ++i) {
+        if (clients[i].getId() == clientId) {
+            int numeroCompte = genererNumeroCompteUnique();
+            std::shared_ptr<Compte> compte = std::make_shared<Compte>(numeroCompte, clients[i]);
+            comptes.push_back(compte);
+            comptesDuClient[i].push_back(numeroCompte); // Add the account to the client's accounts list
+            std::cout << "Compte créé avec succès! Numéro de compte: " << numeroCompte << std::endl;
+            return;
+        }
+    }
+    std::cout << "Client avec l'ID " << clientId << " non trouvé." << std::endl;
+}
 
+void GestionnaireBanque::modifierCompte(int compteId) {
+    for (auto& compte : comptes) {
+        if (compte->getNumeroCompte() == compteId) {
+            std::cout << "Entrez le nouveau solde du compte: ";
+            double nouveauSolde;
+            std::cin >> nouveauSolde;
+            compte->setSolde(nouveauSolde);
+            std::cout << "Compte modifié avec succès!" << std::endl;
+            return;
+        }
+    }
+    std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+}
+
+void GestionnaireBanque::supprimerCompte(int compteId) {
+    // Using std::remove_if for efficient removal
+    auto newEnd = std::remove_if(comptes.begin(), comptes.end(),
+                                 [compteId](const std::shared_ptr<Compte>& c) { return c->getNumeroCompte() == compteId; });
+    if (newEnd != comptes.end()) {
+        comptes.erase(newEnd, comptes.end());
+        std::cout << "Compte supprimé avec succès!" << std::endl;
+    } else {
+        std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
+    }
+}
 
 void GestionnaireBanque::afficherComptes() const {
     if (comptes.empty()) {
@@ -125,32 +159,19 @@ void GestionnaireBanque::rechercherCompte(int compteId) const {
     std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
 }
 
- Pret GestionnaireBanque::demanderPret(int clientId, double montant, int duree, double tauxInteret) {
-    int clientId = clientIdSession;
-    if (clientIdSession == -1) {
-        std::cout << "Vous devez être connecté pour demander un prêt." << std::endl;
-        return; 
+Pret GestionnaireBanque::demanderPret(int clientId, double montant, int duree, double tauxInteret) {
+    for (size_t i = 0; i < clients.size(); ++i) {
+        if (clients[i].getId() == clientId) {
+            if (montant <= 0 || duree <= 0 || tauxInteret <= 0) {
+                throw std::runtime_error("Montant, durée et taux d'intérêt doivent être positifs.");
+            }
+            Pret nouveauPret(dernierIdPret++, montant, tauxInteret, duree, getCurrentDateTime(), getCurrentDateTime()); // Add loan to prets vector
+            prets.push_back(nouveauPret);
+            std::cout << "Prêt accordé avec succès! ID du prêt: " << nouveauPret.getId() << std::endl;
+            return nouveauPret;
+        }
     }
-
-    double montant;
-    int duree;
-    double tauxInteret;
-
-    std::cout << "Entrez le montant du prêt: ";
-    std::cin >> montant;
-
-    std::cout << "Entrez la durée du prêt (en mois): ";
-    std::cin >> duree;
-
-    std::cout << "Entrez le taux d'intérêt (en %): ";
-    std::cin >> tauxInteret;
-
-    try {
-        Pret pret = banque.demanderPret(clientId, montant, duree, tauxInteret);
-        std::cout << "Prêt accordé avec succès! ID du prêt: " << pret.getId() << std::endl;
-    } catch (const std::runtime_error& e) {
-        std::cout << "Erreur: " << e.what() << std::endl;
-    }
+    throw std::runtime_error("Client avec l'ID " + std::to_string(clientId) + " non trouvé.");
 }
 
 void GestionnaireBanque::afficherPrets(int clientId) const {
@@ -160,7 +181,7 @@ void GestionnaireBanque::afficherPrets(int clientId) const {
         return;
     }
     for (const auto& pret : prets) { // Loop through the vector
-        if (pret.getClientId() == clientId) {
+        if (pret.getId() == clientId) {
             pret.afficherPret(); 
             std::cout << "------------------------" << std::endl; 
         }
@@ -221,7 +242,7 @@ void GestionnaireBanque::afficherTransactionsClient(int clientId) const {
 
         int compteId = std::stoi(compteStr);
         // Check if the transaction's account ID is in the client's accounts
-        if (std::find(comptesDuClient.begin(), comptesDuClient.end(), compteId) != comptesDuClient.end()) {
+        if (std::find(comptesDuClient[clientId].begin(), comptesDuClient[clientId].end(), compteId) != comptesDuClient[clientId].end()) {
             double montant = std::stod(montantStr);
             std::cout << "Date: " << dateHeure
                       << ", Type: " << type
@@ -287,7 +308,7 @@ void GestionnaireBanque::afficherPrets(int clientId) const {
         return;
     }
     for (const auto& pret : prets) { // Loop through the vector
-        if (pret.getClientId() == clientId) {
+        if (pret.getId() == clientId) {
             pret.afficherPret(); 
             std::cout << "------------------------" << std::endl; 
         }
@@ -298,7 +319,7 @@ void GestionnaireBanque::afficherPrets(int clientId) const {
 
 
 
-/* void GestionnaireBanque::sauvegarderClients(const std::string& filename) {
+ void GestionnaireBanque::sauvegarderClients(const std::string& filename) {
     std::ofstream outputFile(filename);
     json j = json::array(); // Create a JSON array
     for (const auto& client : clients) {
@@ -318,7 +339,8 @@ void GestionnaireBanque::chargerClients(const std::string& filename) {
         inputFile >> j;
         for (const auto& item : j) {
             clients.push_back(Client(item["id"], item["nom"]));
+            comptesDuClient.push_back(std::vector<int>()); // Initialize an empty vector for the new client's accounts
         }
         inputFile.close();
     }
-} */
+} 

@@ -9,8 +9,7 @@
 #include <cmath> 
 #include <numeric>
 
-// You likely need to include <iostream> for the output statements in this header file
-#include <iostream>
+
 
 class Pret {
 private:
@@ -19,7 +18,6 @@ private:
     double tauxAnnuel;
     int duree;
     std::chrono::system_clock::time_point dateDebut;
-<<<<<<< HEAD
     std::chrono::system_clock::time_point dateRemboursement; 
     std::vector<Pret::Paiement> paiements; 
     std::chrono::system_clock::time_point derniereDatePaiement; 
@@ -41,20 +39,28 @@ private:
     }
     
 
-=======
     std::chrono::system_clock::time_point dateRemboursement;
     const std::vector<Pret> getPrets() const; 
->>>>>>> 824cedf74f30a3e29c9807ae1ed67396989c6eeb
-public:
-    // Constructor
-    Pret(double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr);
+  Pret(double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr);
     Pret(int id, double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr);
 
     // Destructor
     ~Pret() {}
 
-    // Getters
+    // Getters (make these public)
     int getId() const;
+    double getMontant() const;
+    // ... other getters ...
+
+    // Setters
+    void setId(int id);
+    // ... other setters ...
+
+    // Record a payment
+    void enregistrerPaiement(double montant, const std::string& datePaiementStr);
+
+    // Display loan details (make this public)
+    void afficherPret() const;
     double getMontant() const;
     double getTaux() const;
     int getDuree() const;
