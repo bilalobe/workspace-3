@@ -1,346 +1,385 @@
 #include "banque.h"
+#include "transaction.h"
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <chrono>
+#include <fstream>
+#include <algorithm>
+#include <ctime>
+#include <random> // For rand()
 
-
-using namespace std;
-using json = nlohmann::json; // Use the json alias
-
-int GestionnaireBanque::genererNumeroCompteUnique() {
-    std::random_device rd;
-    std::mt19937 generator(rd());
-    std::uniform_int_distribution<int> distribution(10000, 99999); 
-    int newNumeroCompte;
-    do {
-        newNumeroCompte = distribution(generator); 
-    } while (compteExists(newNumeroCompte)); // Check against existing accounts in GestionnaireBanque
-    return newNumeroCompte;
+// Constructor
+GestionnaireBanque::GestionnaireBanque() {
+    // ... (other initialization)
+    clients = std::vector<Client>(); // Initialize the clients vector
+    comptes = std::vector<std::shared_ptr<Compte>>(); // Initialize the comptes vector
+    prets = std::vector<std::shared_ptr<Pret>>(); // Initialize the prets vector
+    transactions = std::vector<Transaction>(); // Initialize the transactions vector
+    nextClientId = 1; // Initialize the next client ID
+    nextAccountId = 1; // Initialize the next account ID
+    nextPretId = 1; // Initialize the next Pret ID
 }
 
-void GestionnaireBanque::nouveauClient(const std::string& nom) {
-    std::string clientName;
-    std::cout << "Entrez le nom du client: ";
-    std::cin.ignore();
-    std::getline(std::cin, clientName);
+// Client Management
 
-    Client client(dernierIdClient++, clientName);
-    clients.push_back(client);
-    comptesDuClient.push_back(std::vector<int>()); // Initialize an empty vector for the new client's accounts
-    std::cout << "Nouveau client ajouté avec succès! ID du client: " << client.getId() << std::endl;
+int GestionnaireBanque::creerCompte(int clientId) {
+    // Find the client
+    auto it = find_if(clients.begin(), clients.end(), 
+                        [&](const Client& c) { return c.getId() == clientId; });
+
+    if (it != clients.end()) {
+        // Create a new account for the client (using make_shared)
+        auto newCompte = std::make_shared<Compte>(nextAccountId++, 0.0, TypeCompte::Checking, *it); 
+        comptes.push_back(newCompte); 
+        it->addCompte(newCompte); // Add the account to the client's list
+
+        return newCompte->getNumeroCompte();
+    } else {
+        cout << "Erreur: Client introuvable." << endl;
+        return -1; // Indicate an error
+    }
 }
 
 void GestionnaireBanque::modifierClient(int clientId) {
-    for (auto& client : clients) {
-        if (client.getId() == clientId) {
-            std::cout << "Entrez le nouveau nom du client: ";
-            std::string nouveauNom;
-            std::cin.ignore();
-            std::getline(std::cin, nouveauNom);
-            client.setNom(nouveauNom);
-            std::cout << "Client modifié avec succès!" << std::endl;
-            return;
-        }
-    }
-    std::cout << "Client avec l'ID " << clientId << " non trouvé." << std::endl;
+    // Implement logic to modify client details (name, etc.)
+    // ...
+    cout << "Modification du client (TODO)" << endl;
 }
 
 void GestionnaireBanque::supprimerClient(int clientId) {
-    // Using std::remove_if for efficient removal
-    auto newEnd = std::remove_if(clients.begin(), clients.end(),
-                                 [clientId](const Client& c) { return c.getId() == clientId; });
-    if (newEnd != clients.end()) {
-        clients.erase(newEnd, clients.end());
-        std::cout << "Client supprimé avec succès!" << std::endl;
-    } else {
-        std::cout << "Client avec l'ID " << clientId << " non trouvé." << std::endl;
-    }
+    // Implement logic to delete a client (remove accounts and Prets)
+    // ...
+    cout << "Suppression du client (TODO)" << endl;
 }
 
 void GestionnaireBanque::afficherClients() const {
     if (clients.empty()) {
-        std::cout << "Aucun client enregistré." << std::endl;
+        cout << "Aucun client enregistré." << endl;
         return;
     }
-    std::cout << "\nListe des clients:" << std::endl;
+    cout << "Clients:" << endl;
     for (const auto& client : clients) {
-        std::cout << "ID: " << client.getId() << ", Nom: " << client.getNom() << std::endl;
+        cout << " - ID: " << client.getId() << ", Nom: " << client.getNom() << endl;
     }
 }
 
 void GestionnaireBanque::rechercherClientParNom(const std::string& nom) const {
-    bool clientTrouve = false;
-    for (const auto& client : clients) {
-        if (client.getNom() == nom) {
-            std::cout << "Client trouvé: ID: " << client.getId() << ", Nom: " << client.getNom() << std::endl;
-            clientTrouve = true;
-        }
-    }
-    if (!clientTrouve) {
-        std::cout << "Aucun client trouvé avec le nom \"" << nom << "\"." << std::endl;
-    }
+    // Implement logic to search for a client by name
+    // ...
+    cout << "Recherche de client par nom (TODO)" << endl;
 }
 
 void GestionnaireBanque::rechercherClientParId(int clientId) const {
-    for (const auto& client : clients) {
-        if (client.getId() == clientId) {
-            std::cout << "Client trouvé: ID: " << client.getId() << ", Nom: " << client.getNom() << std::endl;
-            return;
+    // Implement logic to search for a client by ID
+    // ...
+    cout << "Recherche de client par ID (TODO)" << endl;
+}
+
+// Account Management
+
+int GestionnaireBanque::creerCompte(int clientId) {
+    // Find the client
+    auto it = find_if(clients.begin(), clients.end(), 
+                        [&](const Client& c) { return c.getId() == clientId; });
+
+    if (it != clients.end()) {
+        // Create a new account for the client
+        auto newCompte = make_shared<Compte>(nextAccountId++, *it);
+        comptes.push_back(newCompte);
+        it->addCompte(newCompte); // Add the account to the client's list
+
+        return newCompte->getNumeroCompte();
+    } else {
+        cout << "Erreur: Client introuvable." << endl;
+        return -1; // Indicate an error
+    }
+}
+
+void GestionnaireBanque::modifierCompte(int compteId) {
+    // Implement logic to modify an account (e.g., change the limit)
+    // ...
+    cout << "Modification du compte (TODO)" << endl;
+}
+
+void GestionnaireBanque::supprimerCompte(int compteId) {
+    // Implement logic to delete an account
+    // ...
+    cout << "Suppression du compte (TODO)" << endl;
+}
+
+void GestionnaireBanque::afficherComptes() const {
+    if (comptes.empty()) {
+        cout << "Aucun compte enregistré." << endl;
+        return;
+    }
+
+    cout << "Comptes:" << endl;
+    for (const auto& compte : comptes) {
+        cout << " - Numéro: " << compte->getNumeroCompte() << ", Solde: " << compte->getSolde() << endl;
+    }
+}
+
+void GestionnaireBanque::rechercherCompte(int compteId) const {
+    // Implement logic to search for an account
+    // ...
+    cout << "Recherche de compte (TODO)" << endl;
+}
+
+std::shared_ptr<Compte> GestionnaireBanque::getCompteByBeneficiaryName(const std::string& beneficiaryName) const  {
+    for (const auto& compte : comptes) {
+        if (compte->getClient().getNom() == beneficiaryName) {
+            return compte;
         }
     }
-    std::cout << "Aucun client trouvé avec l'ID " << clientId << "." << std::endl;
+    return nullptr; // Not found
+}
+
+// Pret Management
+
+int GestionnaireBanque::demanderPret(int clientId, double montant, int duree, double tauxInteret) {
+    // Find the client
+    auto it = find_if(clients.begin(), clients.end(), 
+                        [&](const Client& c) { return c.getId() == clientId; });
+
+    if (it != clients.end()) {
+        // Create a new Pret
+        auto newPret = make_shared<Pret>(nextPretId++, montant, tauxInteret, duree, "2023-12-01", "2025-12-01");
+        prets.push_back(newPret);
+        it->addPret(newPret);
+        return newPret->getId();
+    } else {
+        cout << "Erreur: Client introuvable." << endl;
+        return -1; // Indicate an error
+    }
+}
+
+void GestionnaireBanque::rembourserPret(int pretId, double montant, const std::string& datePaiementStr) {
+    // Find the Pret
+    auto it = find_if(prets.begin(), prets.end(), 
+                        [&](const std::shared_ptr<Pret>& p) { return p->getId() == pretId; });
+    if (it != prets.end()) {
+        // Register the payment
+        (*it)->ajouterPaiement(montant, datePaiementStr);
+
+        // Log the payment
+        std::string dateTime = getCurrentDateTime(); 
+        std::cout << dateTime << " - Paiement de prêt ID: " << pretId << " - Montant: " << montant << std::endl; 
+    } else {
+        cout << "Erreur: Prêt introuvable." << endl;
+    }
+}
+
+int GestionnaireBanque::creerPret(int clientId, double montant, double tauxInteret, int duree, double tauxRampe)
+{
+    // ... (Implement logic to create a new Pret)
+    // ... (Find the client, generate a unique Pret ID, create a new Pret object)
+    
+    // Example (assuming you have a vector of clients):
+    auto it = std::find_if(clients.begin(), clients.end(), 
+                            [&](const Client& client) { return client.getId() == clientId; });
+    if (it != clients.end()) {
+        int newPretId = nextPretId++; // Generate a unique Pret ID
+        std::shared_ptr<Pret> nouveauPret = std::make_shared<Pret>(newPretId, montant, tauxInteret, duree, getCurrentDateTime(), getCurrentDateTime(), tauxRampe); // Create a new Pret object
+        prets.push_back(nouveauPret);
+        it->ajouterPret(nouveauPret);
+        return newPretId;
+    } 
+    
+    return -1; // Indicate an error 
+}
+
+bool GestionnaireBanque::rembourserPret(int pretId, double montant)
+{
+    // ... (Implement logic to repay a Pret)
+    // ... (Find the Pret, update the balance, and potentially calculate interest)
+
+    // Example (assuming you have a vector of prets):
+    auto it = std::find_if(prets.begin(), prets.end(), 
+                            [&](const std::shared_ptr<Pret>& pret) { 
+                                return pret->getId() == pretId; 
+                            });
+    if (it != prets.end()) {
+        (*it)->ajouterPaiement(montant, getCurrentDateTime());
+        // ... (Update the Pret balance based on your logic)
+        return true; // Indicate success
+    }
+    return false; // Indicate failure
+}
+
+
+
+std::vector<Pret> GestionnaireBanque::getPrets() const {
+    std::vector<Pret> allPrets;
+    for (const auto& pret : prets) { // Access the prets vector
+        allPrets.push_back(*pret);
+    }
+    return allPrets;
+}
+
+void GestionnaireBanque::afficherPrets(int clientId) const {
+    auto it = std::find_if(clients.begin(), clients.end(), 
+                            [&](const Client& client) { return client.getId() == clientId; });
+    if (it != clients.end()) {
+        it->afficherPrets();
+    } else {
+        std::cout << "Erreur: Client ID " << clientId << " introuvable." << std::endl;
+    }
+}
+
+bool GestionnaireBanque::annulerPret(int pretId) {
+    auto it = std::find_if(prets.begin(), prets.end(), 
+                            [&](const std::shared_ptr<Pret>& pret) { return pret->getId() == pretId; });
+    if (it != prets.end() && (*it)->isCancelable()) {
+        (*it)->setStatut(PretStatut::Canceled);
+        return true; // Indicate success
+    }
+    std::cerr << "Erreur: Le prêt ne peut pas être annulé." << std::endl;
+    return false; // Indicate failure
+}
+
+void GestionnaireBanque::rembourserPret(int pretId, double montant, const std::string& datePaiementStr) {
+    auto it = std::find_if(prets.begin(), prets.end(), 
+                            [&](const std::shared_ptr<Pret>& p) { return p->getId() == pretId; });
+    if (it != prets.end()) {
+        (*it)->ajouterPaiement(montant, datePaiementStr);
+        std::cout << getCurrentDateTime() << " - Paiement de prêt ID: " << pretId << " - Montant: " << montant << std::endl;
+    } else {
+        std::cout << "Erreur: Prêt introuvable." << std::endl;
+    }
+}
+
+int GestionnaireBanque::creerPret(int clientId, double montant, double tauxInteret, int duree, double tauxRampe) {
+    auto it = std::find_if(clients.begin(), clients.end(), 
+                            [&](const Client& client) { return client.getId() == clientId; });
+    if (it != clients.end()) {
+        int newPretId = nextPretId++;
+        auto nouveauPret = std::make_shared<Pret>(newPretId, montant, tauxInteret, duree, getCurrentDateTime(), getCurrentDateTime(), tauxRampe);
+        prets.push_back(nouveauPret);
+        it->ajouterPret(nouveauPret);
+        return newPretId;
+    }
+    return -1; // Indicate an error
+}
+
+// Transaction Management
+
+void GestionnaireBanque::deposer(int compteId, double montant) {
+    // Find the account
+    auto it = find_if(comptes.begin(), comptes.end(), 
+                        [&](const std::shared_ptr<Compte>& c) { return c->getNumeroCompte() == compteId; });
+    if (it != comptes.end()) {
+        (*it)->Deposer(montant); // Deposit into the account
+        cout << "Dépôt effectué avec succès." << endl;
+    } else {
+        cout << "Erreur: Compte introuvable." << endl;
+    }
+}
+
+void GestionnaireBanque::retirer(int compteId, double montant) {
+    // Find the account
+    auto it = find_if(comptes.begin(), comptes.end(), 
+                        [&](const std::shared_ptr<Compte>& c) { return c->getNumeroCompte() == compteId; });
+    if (it != comptes.end()) {
+        (*it)->Retirer(montant); // Withdraw from the account
+        cout << "Retrait effectué avec succès." << endl;
+    } else {
+        cout << "Erreur: Compte introuvable." << endl;
+    }
+}
+
+void GestionnaireBanque::afficherTransactionsCompte(int compteId) const {
+    for (const auto& client : clients) {
+        for (const auto& compte : client.getComptes()) {
+            if (compte.getId() == compteId) {
+                compte.afficherTransactions();
+                return;
+            }
+        }
+    }
+    std::cout << "Erreur: Compte ID " << compteId << " introuvable." << std::endl;
+}
+
+void GestionnaireBanque::afficherTransactionsClient(int clientId) const {
+    auto it = std::find_if(clients.begin(), clients.end(), 
+                            [&](const Client& client) { return client.getId() == clientId; });
+    if (it != clients.end()) {
+        it->afficherTransactions();
+    } else {
+        std::cout << "Erreur: Client ID " << clientId << " introuvable." << std::endl;
+    }
+}
+
+void GestionnaireBanque::enregistrerTransaction(const Transaction& transaction) {
+    // Assuming transactions are stored within accounts or clients
+    for (auto& client : clients) {
+        for (auto& compte : client.getComptes()) {
+            if (compte.getId() == transaction.getCompteId()) {
+                compte.ajouterTransaction(transaction);
+                return;
+            }
+        }
+    }
+    std::cerr << "Erreur: Transaction non enregistrée, compte ID introuvable." << std::endl;
+}
+
+void GestionnaireBanque::sauvegarderClients(const std::string& filename) {
+    nlohmann::json j;
+    for (const auto& client : clients) {
+        j["clients"].push_back(client.toJson());
+    }
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        file << j.dump(4); // Pretty print with 4 spaces
+        file.close();
+    } else {
+        std::cerr << "Erreur: Impossible d'ouvrir le fichier pour sauvegarde." << std::endl;
+    }
+}
+
+void GestionnaireBanque::chargerClients(const std::string& filename) {
+    std::ifstream file(filename);
+    if (file.is_open()) {
+        nlohmann::json j;
+        file >> j;
+        file.close();
+        clients.clear();
+        for (const auto& clientJson : j["clients"]) {
+            Client client;
+            client.fromJson(clientJson);
+            clients.push_back(client);
+        }
+    } else {
+        std::cerr << "Erreur: Impossible d'ouvrir le fichier pour chargement." << std::endl;
+    }
+}
+
+int GestionnaireBanque::genererNumeroCompteUnique() {
+    int numeroCompte;
+    do {
+        numeroCompte = rand() % 1000000; // Generate a random 6-digit number
+    } while (compteExists(numeroCompte));
+    return numeroCompte;
 }
 
 bool GestionnaireBanque::compteExists(int numeroCompte) const {
-    for (const auto& compte : comptes) {
-        if (compte->getNumeroCompte() == numeroCompte) {
-            return true;
+    for (const auto& client : clients) {
+        for (const auto& compte : client.getComptes()) {
+            if (compte.getId() == numeroCompte) {
+                return true;
+            }
         }
     }
     return false;
 }
 
-void GestionnaireBanque::creerCompte(int clientId) {
-    for (size_t i = 0; i < clients.size(); ++i) {
-        if (clients[i].getId() == clientId) {
-            int numeroCompte = genererNumeroCompteUnique();
-            std::shared_ptr<Compte> compte = std::make_shared<Compte>(numeroCompte, clients[i]);
-            comptes.push_back(compte);
-            comptesDuClient[i].push_back(numeroCompte); // Add the account to the client's accounts list
-            std::cout << "Compte créé avec succès! Numéro de compte: " << numeroCompte << std::endl;
-            return;
-        }
+bool GestionnaireBanque::rembourserPret(int pretId, double montant) {
+    auto it = std::find_if(prets.begin(), prets.end(), 
+                            [&](const std::shared_ptr<Pret>& pret) { return pret->getId() == pretId; });
+    if (it != prets.end()) {
+        (*it)->ajouterPaiement(montant, getCurrentDateTime());
+        return true; // Indicate success
     }
-    std::cout << "Client avec l'ID " << clientId << " non trouvé." << std::endl;
+    return false; // Indicate failure
 }
-
-void GestionnaireBanque::modifierCompte(int compteId) {
-    for (auto& compte : comptes) {
-        if (compte->getNumeroCompte() == compteId) {
-            std::cout << "Entrez le nouveau solde du compte: ";
-            double nouveauSolde;
-            std::cin >> nouveauSolde;
-            compte->setSolde(nouveauSolde);
-            std::cout << "Compte modifié avec succès!" << std::endl;
-            return;
-        }
-    }
-    std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
-}
-
-void GestionnaireBanque::supprimerCompte(int compteId) {
-    // Using std::remove_if for efficient removal
-    auto newEnd = std::remove_if(comptes.begin(), comptes.end(),
-                                 [compteId](const std::shared_ptr<Compte>& c) { return c->getNumeroCompte() == compteId; });
-    if (newEnd != comptes.end()) {
-        comptes.erase(newEnd, comptes.end());
-        std::cout << "Compte supprimé avec succès!" << std::endl;
-    } else {
-        std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
-    }
-}
-
-void GestionnaireBanque::afficherComptes() const {
-    if (comptes.empty()) {
-        std::cout << "Aucun compte enregistré." << std::endl;
-        return;
-    }
-    std::cout << "\nListe des comptes:" << std::endl;
-    for (const auto& compte : comptes) {
-        std::cout << "Numéro de compte: " << compte->getNumeroCompte() << ", Solde: " << compte->getSolde() << std::endl;
-    }
-}
-
-void GestionnaireBanque::rechercherCompte(int compteId) const {
-    for (const auto& compte : comptes) {
-        if (compte->getNumeroCompte() == compteId) {
-            std::cout << "Compte trouvé: Numéro de compte: " << compte->getNumeroCompte() << ", Solde: " << compte->getSolde() << std::endl;
-            return;
-        }
-    }
-    std::cout << "Compte avec l'ID " << compteId << " non trouvé." << std::endl;
-}
-
-Pret GestionnaireBanque::demanderPret(int clientId, double montant, int duree, double tauxInteret) {
-    for (size_t i = 0; i < clients.size(); ++i) {
-        if (clients[i].getId() == clientId) {
-            if (montant <= 0 || duree <= 0 || tauxInteret <= 0) {
-                throw std::runtime_error("Montant, durée et taux d'intérêt doivent être positifs.");
-            }
-            Pret nouveauPret(dernierIdPret++, montant, tauxInteret, duree, getCurrentDateTime(), getCurrentDateTime()); // Add loan to prets vector
-            prets.push_back(nouveauPret);
-            std::cout << "Prêt accordé avec succès! ID du prêt: " << nouveauPret.getId() << std::endl;
-            return nouveauPret;
-        }
-    }
-    throw std::runtime_error("Client avec l'ID " + std::to_string(clientId) + " non trouvé.");
-}
-
-void GestionnaireBanque::afficherPrets(int clientId) const {
-    std::cout << "\n----- Prets -----" << std::endl;
-    if (prets.empty()) { // Check if the vector is empty
-        std::cout << "Aucun prêt enregistré." << std::endl;
-        return;
-    }
-    for (const auto& pret : prets) { // Loop through the vector
-        if (pret.getId() == clientId) {
-            pret.afficherPret(); 
-            std::cout << "------------------------" << std::endl; 
-        }
-    } 
-}
-
-void GestionnaireBanque::afficherTransactionsCompte(int compteId) const {
-    std::cout << "\n----- Transactions du compte " << compteId << " -----" << std::endl;
-    std::ifstream logFile("transactions.log");
-    if (!logFile.is_open()) {
-        std::cout << "Erreur: Impossible d'ouvrir le fichier de transactions." << std::endl;
-        return;
-    }
-    std::string line;
-    bool transactionsTrouvees = false; 
-    while (std::getline(logFile, line)) {
-        std::stringstream ss(line);
-        std::string dateHeure, type, montantStr, compteStr;
-
-        std::getline(ss, dateHeure, ',');
-        std::getline(ss, type, ',');
-        std::getline(ss, montantStr, ',');
-        std::getline(ss, compteStr, ',');
-
-        if (std::stoi(compteStr) == compteId) {
-            double montant = std::stod(montantStr);
-            std::cout << "Date: " << dateHeure
-                      << ", Type: " << type
-                      << ", Montant: " << montant 
-                      << std::endl;
-            transactionsTrouvees = true;
-        }
-    }
-    logFile.close();
-    if (!transactionsTrouvees) {
-        std::cout << "Aucune transaction trouvée pour le compte " << compteId << std::endl;
-    }
-}
-
-void GestionnaireBanque::afficherTransactionsClient(int clientId) const {
-    std::cout << "\n----- Transactions du client " << clientId << " -----" << std::endl;
-    std::ifstream logFile("transactions.log");
-    if (!logFile.is_open()) {
-        std::cout << "Erreur: Impossible d'ouvrir le fichier de transactions." << std::endl;
-        return;
-    }
-    std::string line;
-    bool transactionsTrouvees = false; 
-
-    while (std::getline(logFile, line)) {
-        std::stringstream ss(line);
-        std::string dateHeure, type, montantStr, compteStr;
-
-        std::getline(ss, dateHeure, ',');
-        std::getline(ss, type, ',');
-        std::getline(ss, montantStr, ',');
-        std::getline(ss, compteStr, ',');
-
-        int compteId = std::stoi(compteStr);
-        // Check if the transaction's account ID is in the client's accounts
-        if (std::find(comptesDuClient[clientId].begin(), comptesDuClient[clientId].end(), compteId) != comptesDuClient[clientId].end()) {
-            double montant = std::stod(montantStr);
-            std::cout << "Date: " << dateHeure
-                      << ", Type: " << type
-                      << ", Montant: " << montant
-                      << ", Compte: " << compteId 
-                      << std::endl;
-            transactionsTrouvees = true;
-        }
-    }
-    logFile.close();
-    if (!transactionsTrouvees) {
-        std::cout << "Aucune transaction trouvée pour le client " << clientId << std::endl;
-    }
-}
-
-void GestionnaireBanque::deposer(int compteId, double montant) {
-    for (auto& compte : comptes) {
-        if (compte->getNumeroCompte() == compteId) {
-            compte->Deposer(montant); 
-            std::cout << "Depot de " << montant << " reussi. Nouveau solde: " << compte->getSolde() << std::endl;
-
-            // Log the transaction
-            Transaction depositTransaction(Transaction::Type::Depot, montant, getCurrentDateTime(), 
-                                            compte); // Assuming getCurrentDateTime() is defined in logutils.h
-            logTransaction("transactions.log", depositTransaction);
-
-            return;
-        }
-    }
-    std::cout << "Erreur: Compte avec l'ID " << compteId << " non trouvé." << std::endl;
-}
-
-void GestionnaireBanque::retirer(int compteId, double montant) {
-    for (auto& compte : comptes) {
-        if (compte->getNumeroCompte() == compteId) {
-            compte->Retirer(montant); 
-            std::cout << "Retrait de " << montant << " reussi. Nouveau solde: " << compte->getSolde() << std::endl;
-
-            // Log the transaction
-            Transaction withdrawalTransaction(Transaction::Type::Retrait, montant, getCurrentDateTime(), 
-                                            compte); 
-            logTransaction("transactions.log", withdrawalTransaction);
-
-            return;
-        }
-    }
-    std::cout << "Erreur: Compte avec l'ID " << compteId << " non trouvé." << std::endl;
-}
-std::shared_ptr<Pret> GestionnaireBanque::getPret(int pretId) const
-{
-    for (const auto& pret : prets) {
-        if (pret.getId() == pretId) {
-            return std::make_shared<Pret>(pret); // Create a shared_ptr for the Pret
-        }
-    }
-    return nullptr; // Return nullptr if not found
-}
-
-void GestionnaireBanque::afficherPrets(int clientId) const {
-    std::cout << "\n----- Prets -----" << std::endl;
-    if (prets.empty()) { // Check if the vector is empty
-        std::cout << "Aucun prêt enregistré." << std::endl;
-        return;
-    }
-    for (const auto& pret : prets) { // Loop through the vector
-        if (pret.getId() == clientId) {
-            pret.afficherPret(); 
-            std::cout << "------------------------" << std::endl; 
-        }
-    } 
-}
-
-
-
-
-
- void GestionnaireBanque::sauvegarderClients(const std::string& filename) {
-    std::ofstream outputFile(filename);
-    json j = json::array(); // Create a JSON array
-    for (const auto& client : clients) {
-        j.push_back({
-            {"id", client.getId()},
-            {"nom", client.getNom()}
-        });
-    }
-    outputFile << j << std::endl;
-    outputFile.close();
-}
-
-void GestionnaireBanque::chargerClients(const std::string& filename) {
-    std::ifstream inputFile(filename); 
-    if (inputFile.is_open()) {
-        json j;
-        inputFile >> j;
-        for (const auto& item : j) {
-            clients.push_back(Client(item["id"], item["nom"]));
-            comptesDuClient.push_back(std::vector<int>()); // Initialize an empty vector for the new client's accounts
-        }
-        inputFile.close();
-    }
-} 

@@ -1,26 +1,33 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <string>
+#include <vector>
+#include <memory>
+
+#include "compte.h" // Include Compte.h 
+#include "pret.h" // Include Pret.h 
 
 class Client {
-private:
-    int id;
-    std::string nom;
-    std::string adresse; 
-
 public:
     // Constructor
-    Client(int id, const std::string& nom, const std::string& adresse = "");
+    Client(int id, const std::string& nom);
 
     // Getters
     int getId() const;
-    std::string getNom() const;
-    std::string getAdresse() const; 
+    const std::string& getNom() const;
+    std::vector<std::shared_ptr<Compte>> getComptes() const; 
+    std::vector<std::shared_ptr<Pret>> getPrets() const; 
 
-    // Setters
-    void setId(int id);
-    void setNom(const std::string& nom);
-    void setAdresse(const std::string& adresse);
+    // Other methods
+    void addCompte(const std::shared_ptr<Compte>& compte);
+    void addPret(const std::shared_ptr<Pret>& pret); 
+
+private:
+    int id;
+    std::string nom;
+    std::vector<std::shared_ptr<Compte>> comptes;
+    std::vector<std::shared_ptr<Pret>> prets;
 };
 
 #endif

@@ -111,7 +111,14 @@
     "format": "cpp",
     "iomanip": "cpp",
     "span": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "any": "cpp",
+    "codecvt": "cpp",
+    "cstring": "cpp",
+    "forward_list": "cpp",
+    "map": "cpp",
+    "ranges": "cpp",
+    "valarray": "cpp"
   },
   "cmake.sourceDirectory": "a:/workspace#2/dependencies/json-develop"
 }

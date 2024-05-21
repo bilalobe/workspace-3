@@ -2,35 +2,41 @@
 
 #include <string>
 #include <fstream>
+#include <sstream>
 #include "transaction.h"
 
-using namespace std;
+#include "logutils.h"
+#include "transaction.h"
 
 std::string getCurrentDateTime() {
-    // Get current time point
-    const auto now = std::chrono::system_clock::now();
+    std::time_t now = std::time(0);
+    std::tm *ltm = std::localtime(&now);
 
-    // Convert to time_t (calendar time)
-    std::time_t time = std::chrono::system_clock::to_time_t(now);
-
-    // Convert to local time
-    std::tm localTime = *std::localtime(&time);
-
-    // Format the date and time string (using strftime)
-    char buffer[80];
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &localTime); 
-    return std::string(buffer); 
+    std::stringstream ss;
+    ss << std::put_time(ltm, "%Y-%m-%d %H:%M:%S");
+    return ss.str();
 }
 
-void logTransaction(const std::string& filename, const Transaction& transaction) { 
-    std::ofstream logFile(filename, std::ios_base::app);
+void logTransaction(const std::string& filename, const Transaction& transaction) {
+    std::ofstream logFile(filename, std::ios::app); // Open the log file in append mode
+
     if (logFile.is_open()) {
-        logFile << transaction.getDateHeure() << "," 
-                << transaction.typeToStr() << ","
-                << transaction.getMontant() << ","
-                << transaction.getCompteAssocie()->getNumeroCompte() << std::endl;
-logFile.close(); 
-    } else { 
-        throw std::runtime_error("Unable to open log file " + filename);
-    } 
+        logFile << getCurrentDateTime() << " - Transaction: " << std::endl;
+        logFile << "    - Type: " << transaction.typeToStr() << std::endl;
+        logFile << "    - Montant: " << transaction.getMontant() << std::endl;
+        logFile << "    - Date Heure: " << transaction.getDateHeure() << std::endl;
+        logFile << "    - Compte Associé: " << transaction.getCompteAssocie()->getNumeroCompte() << std::endl;
+        
+        // Add additional details as needed
+        if (transaction.getType() == Transaction::Type::Virement) {
+            logFile << "    - Bénéficiaire: " << transaction.getBeneficiaryName() << std::endl;
+        } else if (transaction.getType() == Transaction::Type::Pret) {
+            logFile << "    - ID du prêt: " << transaction.getPretId() << std::endl;
+        }
+
+        logFile << std::endl; // Add a line break between transactions
+        logFile.close();
+    } else {
+        std::cerr << "Erreur: Impossible d'ouvrir le fichier journal (" << filename << ")" << std::endl;
+    }
 }

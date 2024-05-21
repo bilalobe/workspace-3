@@ -362,7 +362,7 @@ void afficherMenuPret() {
             }
 
             case 2: { 
-                // Call a function to display loans 
+                // Call a function to display Prets 
                 banque.afficherPrets(clientIdSession);
                 break;
             }
