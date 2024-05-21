@@ -19,6 +19,7 @@ private:
     double tauxAnnuel;
     int duree;
     std::chrono::system_clock::time_point dateDebut;
+<<<<<<< HEAD
     std::chrono::system_clock::time_point dateRemboursement; 
     std::vector<Pret::Paiement> paiements; 
     std::chrono::system_clock::time_point derniereDatePaiement; 
@@ -43,6 +44,7 @@ private:
 =======
     std::chrono::system_clock::time_point dateRemboursement;
     const std::vector<Pret> getPrets() const; 
+>>>>>>> 824cedf74f30a3e29c9807ae1ed67396989c6eeb
 public:
     // Constructor
     Pret(double montant, double taux, int duree, const std::string& dateDebutStr, const std::string& dateRemboursementStr);
