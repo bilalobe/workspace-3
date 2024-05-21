@@ -112,5 +112,6 @@
     "iomanip": "cpp",
     "span": "cpp",
     "variant": "cpp"
-  }
+  },
+  "cmake.sourceDirectory": "a:/workspace#2/dependencies/json-develop"
 }
